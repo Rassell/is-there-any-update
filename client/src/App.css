@@ -1,0 +1,16 @@
+.App {
+    display: flex;
+    flex-direction: column;
+}
+
+.picks, .bans {
+    display: flex;
+    flex-direction: row;
+    gap: 15px;
+}
+
+.team, .enemy {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}

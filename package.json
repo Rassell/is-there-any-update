@@ -1,0 +1,27 @@
+{
+    "name": "is-there-any-update",
+    "version": "1.0.0",
+    "description": "An app to check for updates",
+    "main": "src/main.ts",
+    "scripts": {
+        "postinstall": "cd ./client && npm i",
+        "start": "concurrently \"npm run web:start\" \"wait-on http://localhost:3000 && npm run electron:start\"",
+        "electron:build": "tsc",
+        "electron:watch": "tsc -w",
+        "electron:start": "npm run electron:build && electron ./dist/main.js",
+        "web:start": "cd ./client && npm run-script start"
+    },
+    "repository": "https://github.com/Rassell/is-there-any-update",
+    "keywords": [
+        "update"
+    ],
+    "dependencies": {
+        "concurrently": "^6.4.0",
+        "electron-is-dev": "^2.0.0",
+        "typescript": "^4.5.4",
+        "wait-on": "^6.0.0"
+    },
+    "devDependencies": {
+        "electron": "^16.0.2"
+    }
+}
