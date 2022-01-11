@@ -6,9 +6,7 @@
     "scripts": {
         "postinstall": "cd ./client && npm i",
         "start": "concurrently \"npm run web:start\" \"wait-on http://localhost:3000 && npm run electron:start\"",
-        "electron:build": "tsc",
-        "electron:watch": "tsc -w",
-        "electron:start": "npm run electron:build && electron ./dist/main.js",
+        "electron:start": "tsc && electron ./dist/main.js",
         "web:start": "cd ./client && npm run-script start"
     },
     "repository": "https://github.com/Rassell/is-there-any-update",

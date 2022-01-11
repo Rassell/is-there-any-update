@@ -3,7 +3,7 @@ import path = require('path');
 import { app, BrowserWindow } from 'electron';
 import isDev = require('electron-is-dev');
 
-import { setMainWindow } from './background';
+import { setMainWindow, setMethods } from './background';
 
 function createWindow() {
     // Create the browser window.
@@ -18,6 +18,7 @@ function createWindow() {
     });
 
     setMainWindow(mainWindow);
+    setMethods();
 
     const startURL = isDev
         ? 'http://localhost:3000'
