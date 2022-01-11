@@ -3,7 +3,7 @@ import path = require('path');
 import { app, BrowserWindow } from 'electron';
 import isDev = require('electron-is-dev');
 
-import { setMainWindow, setMethods } from './background';
+import { setMainWindow, setMethods } from './methods';
 
 function createWindow() {
     // Create the browser window.

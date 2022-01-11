@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import './App.css';
+import './App.scss';
 
 function App() {
     const [fileList, setFileList] = useState<string[]>([]);
@@ -12,12 +12,16 @@ function App() {
 
     return (
         <div className="App">
-            <button onClick={openFileDialog}>select file</button>
-
-            <div>
-                {fileList.map((file, index) => (
-                    <div key={file}>{file}</div>
-                ))}
+            <div className="top">
+                <button onClick={openFileDialog}>select file</button>
+            </div>
+            <div className="body">
+                <div className="files">
+                    {fileList.map((file, index) => (
+                        <div key={file}>{file}</div>
+                    ))}
+                </div>
+                <div className="fileContent">content of file</div>
             </div>
         </div>
     );

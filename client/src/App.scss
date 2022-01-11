@@ -1,0 +1,22 @@
+.App {
+    display: flex;
+    flex-direction: column;
+
+    .body {
+        display: flex;
+        flex-direction: row;
+        gap: 15px;
+
+        .files {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            flex: 0.5;
+        }
+
+        .fileContent {
+            display: flex;
+            flex: 0.5;
+        }
+    }
+}
