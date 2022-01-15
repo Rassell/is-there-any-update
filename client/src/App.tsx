@@ -31,27 +31,32 @@ function App() {
     const [content, setContent] = useState<IPackage>();
 
     async function openFileDialog() {
-        var response = await (window as any).Api.call('openFileDialog');
+        try {
+            var response = await (window as any).Api.call('openFileDialog');
 
-        if (response) {
-            setFileList([...fileList, response]);
+            if (response) {
+                setFileList([...fileList, response]);
+            }
+        } catch (e) {
+            console.log(e);
         }
     }
 
     async function showContent(filePath: string) {
         const resultConentString = localStorage.getItem(filePath);
-        const resultContent = JSON.parse(
-            resultConentString || '{}',
-        ) as IPackage;
-        setContent(resultContent);
 
-        const path = filePath.substring(0, filePath.lastIndexOf('/'));
-        try {
-            var response = await (window as any).Api.call('checkVersions', {
-                path,
-            });
-        } catch (error) {
-            console.log(error);
+        if (resultConentString) {
+            const resultContent: IPackage = JSON.parse(resultConentString);
+            setContent(resultContent);
+
+            const path = filePath.substring(0, filePath.lastIndexOf('/'));
+            try {
+                var response = await (window as any).Api.call('checkVersions', {
+                    path,
+                });
+            } catch (error) {
+                console.log(error);
+            }
         }
     }
 
