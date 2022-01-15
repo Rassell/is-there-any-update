@@ -67,6 +67,10 @@ function App() {
         }
     }
 
+    function removeFile(filePath: string) {
+        setFileList(fileList.filter(file => file !== filePath));
+    }
+
     return (
         <div className="App">
             <div className="top">
@@ -75,8 +79,9 @@ function App() {
             <div className="body">
                 <div className="files">
                     {fileList.map((file, index) => (
-                        <div onClick={() => showContent(file)} key={file}>
-                            {file}
+                        <div key={file}>
+                            <button onClick={() => removeFile(file)}>Remove</button>
+                            <div onClick={() => showContent(file)}>{file}</div>
                         </div>
                     ))}
                 </div>
