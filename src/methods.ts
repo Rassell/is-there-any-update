@@ -9,6 +9,8 @@ export function setMainWindow(win: Electron.BrowserWindow) {
 }
 
 export function setMethods() {
+    // TODO: Check if file is valid (package.json etc)
+    // TODO: Save folders instead of all? -> treatPackageAsDirectory
     ipcMain.handle('openFileDialog', async () => {
         const file = await dialog.showOpenDialog({
             properties: ['openFile'],
