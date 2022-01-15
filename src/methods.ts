@@ -1,5 +1,5 @@
 import { dialog, ipcMain } from 'electron';
-import { exec } from 'child_process';
+import { exec, spawn } from 'child_process';
 import * as fs from 'fs';
 
 let mainWindow: Electron.BrowserWindow;
@@ -34,18 +34,22 @@ export function setMethods() {
         'checkVersions',
         async (_, { path, type }: { path: string; type: string }) => {
             console.log(path);
-            console.log(process.env.PATH);
-            exec(`cd ${path} && npm outdated`, (err, stdout, stderr) => {
-                // TODO: show error?
-                if (err || stderr) {
-                    console.error('err');
-                    console.error(err);
-                    console.error('stderr');
-                    console.error(stderr);
-                    return;
-                }
+            var child = spawn(`npm outdated`, {
+                detached: true,
+                cwd: path,
+                shell: true,
+            });
 
-                console.log(stdout);
+            child.stdout.on('data', data => {
+                console.log(`stdout: ${data}`);
+            });
+
+            child.stderr.on('data', data => {
+                console.error(`stderr: ${data}`);
+            });
+
+            child.on('close', code => {
+                console.log(`child process exited with code ${code}`);
             });
         },
     );
