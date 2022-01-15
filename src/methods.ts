@@ -1,5 +1,5 @@
 import { dialog, ipcMain } from 'electron';
-import { exec, spawn } from 'child_process';
+import { spawn } from 'child_process';
 import * as fs from 'fs';
 
 let mainWindow: Electron.BrowserWindow;
@@ -33,25 +33,36 @@ export function setMethods() {
     ipcMain.handle(
         'checkVersions',
         async (_, { path, type }: { path: string; type: string }) => {
-            let response = '';
+            let response = {};
             return new Promise((resolve, reject) => {
-                var child = spawn(`npm outdated`, {
+                var shell = spawn(`npm outdated`, {
                     detached: true,
                     cwd: path,
                     shell: true,
                 });
 
-                child.stdout.on('data', data => {
-                    console.log(`stdout: ${data}`);
-                    response = data.toString();
+                shell.stdout.on('data', data => {
+                    const regex =
+                        /([a-z|\@|\/|\-]+)\s+([0-9]+\.?[0-9]+\.?[0-9]+)\s+([0-9]+\.?[0-9]+\.?[0-9]+)\s+([0-9]+\.?[0-9]+\.?[0-9]+)/gi;
+                    const matches: RegExpExecArray[] = data
+                        .toString()
+                        .split('\n')
+                        .map((l: string) => regex.exec(l))
+                        .filter((m: RegExpExecArray) => m !== null);
+                    matches.forEach(element => {
+                        response = {
+                            ...response,
+                            [element[1]]: element[4],
+                        };
+                    });
                 });
 
-                child.stderr.on('data', data => {
+                shell.stderr.on('data', data => {
                     reject(data);
                 });
 
-                child.on('close', code => {
-                    if (code === 0) {
+                shell.on('close', code => {
+                    if (code === 1) {
                         resolve(response);
                     } else {
                         reject(code);

@@ -54,6 +54,7 @@ function App() {
                 var response = await (window as any).Api.call('checkVersions', {
                     path,
                 });
+                console.log(response);
             } catch (error) {
                 console.log(error);
             }
