@@ -16,7 +16,9 @@
 
         .fileContent {
             display: flex;
+            flex-direction: column;
             flex: 0.5;
+            gap: 15px;
         }
     }
 }

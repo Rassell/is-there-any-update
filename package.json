@@ -3,11 +3,16 @@
     "version": "1.0.0",
     "description": "An app to check for updates",
     "main": "src/main.ts",
+    "author": {
+        "name": "Gonzalo Soriano",
+        "email": "sordesos@gmail.com"
+    },
+    "license": "MIT",
     "scripts": {
         "postinstall": "cd ./client && npm i",
         "start": "concurrently \"npm run web:start\" \"wait-on http://localhost:3000 && npm run electron:start\"",
-        "electron:start": "tsc && electron ./dist/main.js",
-        "web:start": "cd ./client && npm run-script start"
+        "start:electron": "tsc && electron ./dist/main.js",
+        "start:web": "cd ./client && npm run-script start"
     },
     "repository": "https://github.com/Rassell/is-there-any-update",
     "keywords": [
