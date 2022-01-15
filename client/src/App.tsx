@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import './App.scss';
 
 interface IPackage {
@@ -27,8 +27,14 @@ function dependencyColumn(packageProps: IPackage | undefined) {
 }
 
 function App() {
-    const [fileList, setFileList] = useState<string[]>([]);
+    const [fileList, setFileList] = useState<string[]>(
+        JSON.parse(localStorage.getItem('fileList') || '[]'),
+    );
     const [content, setContent] = useState<IPackage>();
+
+    useEffect(() => {
+        localStorage.setItem('fileList', JSON.stringify(fileList));
+    }, [fileList]);
 
     async function openFileDialog() {
         try {
