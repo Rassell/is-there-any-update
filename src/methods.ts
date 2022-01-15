@@ -33,23 +33,30 @@ export function setMethods() {
     ipcMain.handle(
         'checkVersions',
         async (_, { path, type }: { path: string; type: string }) => {
-            console.log(path);
-            var child = spawn(`npm outdated`, {
-                detached: true,
-                cwd: path,
-                shell: true,
-            });
+            let response = '';
+            return new Promise((resolve, reject) => {
+                var child = spawn(`npm outdated`, {
+                    detached: true,
+                    cwd: path,
+                    shell: true,
+                });
 
-            child.stdout.on('data', data => {
-                console.log(`stdout: ${data}`);
-            });
+                child.stdout.on('data', data => {
+                    console.log(`stdout: ${data}`);
+                    response = data.toString();
+                });
 
-            child.stderr.on('data', data => {
-                console.error(`stderr: ${data}`);
-            });
+                child.stderr.on('data', data => {
+                    reject(data);
+                });
 
-            child.on('close', code => {
-                console.log(`child process exited with code ${code}`);
+                child.on('close', code => {
+                    if (code === 0) {
+                        resolve(response);
+                    } else {
+                        reject(code);
+                    }
+                });
             });
         },
     );

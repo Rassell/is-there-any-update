@@ -46,9 +46,13 @@ function App() {
         setContent(resultContent);
 
         const path = filePath.substring(0, filePath.lastIndexOf('/'));
-        var response = await (window as any).Api.call('checkVersions', {
-            path,
-        });
+        try {
+            var response = await (window as any).Api.call('checkVersions', {
+                path,
+            });
+        } catch (error) {
+            console.log(error);
+        }
     }
 
     return (
