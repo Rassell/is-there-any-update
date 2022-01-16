@@ -36,6 +36,7 @@ function App() {
     }
 
     async function showContent(filePath: string) {
+        // TODO: show loading
         const resultConentString = localStorage.getItem(filePath);
 
         if (resultConentString) {
