@@ -1,29 +1,12 @@
 import { useEffect, useState } from 'react';
 import './App.scss';
 
+type Dictionary = { [key: string]: string };
+
 interface IPackage {
-    dependencies: {};
-    devDependencies: {};
-}
-
-function dependencyColumn(packageProps: IPackage | undefined) {
-    if (!packageProps) {
-        return null;
-    }
-
-    const totalDepedencies = Object.entries(
-        packageProps.dependencies || {},
-    ).concat(Object.entries(packageProps.devDependencies || {}));
-
-    return (
-        <div className="fileContent">
-            {totalDepedencies.map(([key, value]) => (
-                <div key={key}>
-                    {key}: {value}
-                </div>
-            ))}
-        </div>
-    );
+    dependencies: Dictionary;
+    devDependencies: Dictionary;
+    peerDependencies: Dictionary;
 }
 
 function App() {
@@ -31,6 +14,7 @@ function App() {
         JSON.parse(localStorage.getItem('fileList') || '[]'),
     );
     const [content, setContent] = useState<IPackage>();
+    const [packagesToUpdate, setPackagesToUpdate] = useState<Dictionary>({});
 
     useEffect(() => {
         localStorage.setItem('fileList', JSON.stringify(fileList));
@@ -60,7 +44,7 @@ function App() {
                 var response = await (window as any).Api.call('checkVersions', {
                     path,
                 });
-                console.log(response);
+                setPackagesToUpdate(response);
             } catch (error) {
                 console.log(error);
             }
@@ -69,6 +53,30 @@ function App() {
 
     function removeFile(filePath: string) {
         setFileList(fileList.filter(file => file !== filePath));
+    }
+
+    function dependencyColumn(packageProps: IPackage | undefined) {
+        if (!packageProps) {
+            return null;
+        }
+
+        const totalDepedencies = Object.entries(packageProps.dependencies || {})
+            .concat(Object.entries(packageProps.devDependencies || {}))
+            .concat(Object.entries(packageProps.peerDependencies || {}));
+
+        return (
+            <div className="fileContent">
+                {totalDepedencies.map(([key, value]) => (
+                    <div key={key}>
+                        <div>{key}</div>
+                        <div>{value}</div>
+                        {packagesToUpdate[key] && (
+                            <div>{packagesToUpdate[key]}</div>
+                        )}
+                    </div>
+                ))}
+            </div>
+        );
     }
 
     return (
@@ -80,7 +88,9 @@ function App() {
                 <div className="files">
                     {fileList.map((file, index) => (
                         <div key={file}>
-                            <button onClick={() => removeFile(file)}>Remove</button>
+                            <button onClick={() => removeFile(file)}>
+                                Remove
+                            </button>
                             <div onClick={() => showContent(file)}>{file}</div>
                         </div>
                     ))}
