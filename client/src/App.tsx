@@ -97,9 +97,7 @@ function App() {
                                         }
                                     }}
                                     type="checkbox"
-                                    checked={
-                                        dependencieToUpdate[key] !== undefined
-                                    }
+                                    checked={!!dependencieToUpdate[key]}
                                 />
                             )}
                         </div>
