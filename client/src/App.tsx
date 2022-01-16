@@ -15,6 +15,9 @@ function App() {
     );
     const [content, setContent] = useState<IPackage>();
     const [packagesToUpdate, setPackagesToUpdate] = useState<Dictionary>({});
+    const [dependencieToUpdate, setDependencieToUpdate] = useState<Dictionary>(
+        {},
+    );
 
     useEffect(() => {
         localStorage.setItem('fileList', JSON.stringify(fileList));
@@ -66,13 +69,40 @@ function App() {
 
         return (
             <div className="fileContent">
+                <button onClick={() => {}}>Update selected packages</button>
                 {totalDepedencies.map(([key, value]) => (
-                    <div key={key}>
-                        <div>{key}</div>
-                        <div>{value}</div>
-                        {packagesToUpdate[key] && (
-                            <div>{packagesToUpdate[key]}</div>
-                        )}
+                    <div key={key} className="fileContent-row">
+                        <div className="fileContent-row-key">{key}</div>
+                        <div className="fileContent-row-version">{value}</div>
+                        <div className="fileContent-row-newVersion">
+                            {packagesToUpdate[key]}
+                        </div>
+                        <div className="fileContent-row-checkbox">
+                            {packagesToUpdate[key] && (
+                                <input
+                                    onChange={() => {
+                                        if (dependencieToUpdate[key]) {
+                                            const newDependencies = {
+                                                ...dependencieToUpdate,
+                                            };
+                                            delete newDependencies[key];
+                                            setDependencieToUpdate(
+                                                newDependencies,
+                                            );
+                                        } else {
+                                            setDependencieToUpdate({
+                                                ...dependencieToUpdate,
+                                                [key]: packagesToUpdate[key],
+                                            });
+                                        }
+                                    }}
+                                    type="checkbox"
+                                    checked={
+                                        dependencieToUpdate[key] !== undefined
+                                    }
+                                />
+                            )}
+                        </div>
                     </div>
                 ))}
             </div>
