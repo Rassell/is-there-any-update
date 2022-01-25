@@ -14,15 +14,17 @@ export function setMethods() {
     ipcMain.handle('openFileDialog', async () => {
         const file = await dialog.showOpenDialog({
             properties: ['openFile'],
-            filters: [{ name: 'npm', extensions: ['.json'] }],
+            filters: [{ name: 'npm', extensions: ['json'] }],
         });
 
         if (file.canceled) {
             return;
         }
 
-        const path = file.filePaths[0];
+        let path = file.filePaths[0];
         const content = JSON.stringify(fs.readFileSync(path).toString());
+        // TODO: save OS flag
+        path = path.replace(/\\/g, '/');
 
         mainWindow.webContents.executeJavaScript(
             `localStorage.setItem("${path}", ${content});`,
@@ -38,7 +40,7 @@ export function setMethods() {
             let response = {};
             return new Promise((resolve, reject) => {
                 var shell = spawn(`npm outdated`, {
-                    detached: true,
+                    detached: false,
                     cwd: path,
                     shell: true,
                 });
