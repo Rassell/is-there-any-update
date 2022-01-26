@@ -6,7 +6,7 @@ const AppState = {
     fileList: JSON.parse(
         localStorage.getItem('fileList') || '[]',
     ) as FileListItem[],
-    selectPath: {
+    selectedPath: {
         path: '',
         type: '',
     } as FileListItem,
@@ -34,7 +34,7 @@ function useAppStateProvider(): typeof AppState {
     const [fileList, setFileList] = useState<FileListItem[]>(
         JSON.parse(localStorage.getItem('fileList') || '[]'),
     );
-    const [selectPath, setSelectedPath] = useState<FileListItem>({
+    const [selectedPath, setSelectedPath] = useState<FileListItem>({
         path: '',
         type: '',
     });
@@ -57,7 +57,7 @@ function useAppStateProvider(): typeof AppState {
 
     return {
         fileList,
-        selectPath,
+        selectedPath,
         addFilePath,
         removeFilePath,
         showContent,

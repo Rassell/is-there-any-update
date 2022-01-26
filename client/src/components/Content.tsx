@@ -4,7 +4,7 @@ import { useAppState } from '../hooks/useAppState';
 import { Dictionary, IPackage } from '../models';
 
 export default function Content() {
-    const { selectPath } = useAppState();
+    const { selectedPath } = useAppState();
     const [content, setContent] = useState<IPackage>();
     const [packagesToUpdate, setPackagesToUpdate] = useState<Dictionary>({});
     const [dependenciesToUpdate, setDependenciesToUpdate] =
@@ -12,10 +12,10 @@ export default function Content() {
 
     useEffect(() => {
         async function doIT() {
-            if (!selectPath || !selectPath.path) return;
+            if (!selectedPath || !selectedPath.path) return;
             const resultConentString = await window.Api.call(
                 'readFile',
-                selectPath.path,
+                selectedPath.path,
             );
 
             if (resultConentString) {
@@ -25,7 +25,7 @@ export default function Content() {
                 try {
                     var response = await window.Api.call(
                         'checkVersions',
-                        selectPath,
+                        selectedPath,
                     );
                     setPackagesToUpdate(response);
                 } catch (error) {
@@ -35,7 +35,7 @@ export default function Content() {
         }
 
         doIT();
-    }, [selectPath]);
+    }, [selectedPath]);
 
     if (!content) {
         return <></>;
@@ -47,7 +47,7 @@ export default function Content() {
 
     async function updatePackages() {
         var path = await window.Api.call('updateVersions', {
-            ...selectPath,
+            ...selectedPath,
             packagesToUpdate,
         });
     }
