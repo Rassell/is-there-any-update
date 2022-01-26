@@ -1,10 +1,10 @@
 import { useState } from 'react';
-import { useAppState } from '../hooks/useAppState';
 
-type Dictionary = { [key: string]: string };
+import { useAppState } from '../hooks/useAppState';
+import { Dictionary } from '../models';
 
 export default function Content() {
-    const { content, packagesToUpdate } = useAppState();
+    const { content, packagesToUpdate, selectPath } = useAppState();
     const [dependenciesToUpdate, setDependenciesToUpdate] =
         useState<Dictionary>({});
 
@@ -16,9 +16,16 @@ export default function Content() {
         .concat(Object.entries(content.devDependencies || {}))
         .concat(Object.entries(content.peerDependencies || {}));
 
+    async function updatePackages() {
+        var path = await window.Api.call('updateVersions', {
+            ...selectPath,
+            packagesToUpdate,
+        });
+    }
+
     return (
         <div className="fileContent">
-            <button onClick={() => {}}>Update selected packages</button>
+            <button onClick={updatePackages}>Update selected packages</button>
             {totalDepedencies.map(([key, value]) => (
                 <div key={key} className="fileContent-row">
                     <div className="fileContent-row-key">{key}</div>

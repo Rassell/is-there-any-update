@@ -1,20 +1,20 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 
-type Dictionary = { [key: string]: string };
-
-interface IPackage {
-    dependencies: Dictionary;
-    devDependencies: Dictionary;
-    peerDependencies: Dictionary;
-}
+import { Dictionary, FileListItem, IPackage } from '../models';
 
 const AppState = {
-    fileList: JSON.parse(localStorage.getItem('fileList') || '[]') as string[],
+    fileList: JSON.parse(
+        localStorage.getItem('fileList') || '[]',
+    ) as FileListItem[],
     content: undefined as IPackage | undefined,
     packagesToUpdate: {} as Dictionary,
-    addFile: (path: string) => {},
-    removeFile: (filePath: string) => {},
-    showContent: (filePath: string) => {},
+    selectPath: {
+        path: '',
+        type: '',
+    } as FileListItem,
+    addFilePath: (path: string, type: string) => {},
+    removeFilePath: (fileListItem: FileListItem) => {},
+    showContent: (fileListItem: FileListItem) => {},
     setPackagesToUpdate: (packagesToUpdate: Dictionary) => {},
 };
 
@@ -34,41 +34,43 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
 }
 
 function useAppStateProvider(): typeof AppState {
-    const [fileList, setFileList] = useState<string[]>(
+    const [fileList, setFileList] = useState<FileListItem[]>(
         JSON.parse(localStorage.getItem('fileList') || '[]'),
     );
     const [content, setContent] = useState<IPackage>();
     const [packagesToUpdate, setPackagesToUpdate] = useState<Dictionary>({});
+    const [selectPath, setSelectedPath] = useState<FileListItem>({
+        path: '',
+        type: '',
+    });
 
     useEffect(() => {
         localStorage.setItem('fileList', JSON.stringify(fileList));
     }, [fileList]);
 
-    function addFile(path: string) {
-        setFileList([...fileList, path]);
+    function addFilePath(path: string, type: string) {
+        setFileList([...fileList, { path, type }]);
     }
 
-    function removeFile(filePath: string) {
-        setFileList(fileList.filter(file => file !== filePath));
+    function removeFilePath(fileItem: FileListItem) {
+        setFileList(fileList.filter(file => file.path !== fileItem.path));
     }
 
-    async function showContent(filePath: string) {
+    async function showContent(filePath: FileListItem) {
         // TODO: show loading
         setPackagesToUpdate({});
-        const pathToFind = filePath.replaceAll('\\', '/');
-        const resultConentString = localStorage.getItem(pathToFind);
+        setSelectedPath(filePath);
+        const resultConentString = await window.Api.call(
+            'readFile',
+            filePath.path,
+        );
 
         if (resultConentString) {
             const resultContent: IPackage = JSON.parse(resultConentString);
             setContent(resultContent);
 
-            const path = pathToFind
-                .substring(0, pathToFind.lastIndexOf('/'))
-                .replaceAll('/', '\\');
             try {
-                var response = await (window as any).Api.call('checkVersions', {
-                    path,
-                });
+                var response = await window.Api.call('checkVersions', filePath);
                 setPackagesToUpdate(response);
             } catch (error) {
                 console.log(error);
@@ -80,8 +82,9 @@ function useAppStateProvider(): typeof AppState {
         fileList,
         content,
         packagesToUpdate,
-        addFile,
-        removeFile,
+        selectPath,
+        addFilePath,
+        removeFilePath,
         showContent,
         setPackagesToUpdate,
     };
