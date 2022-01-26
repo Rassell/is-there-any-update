@@ -11,7 +11,7 @@ export default function Content() {
         useState<Dictionary>({});
 
     useEffect(() => {
-        async function doIT() {
+        async function loadContent() {
             if (!selectedPath || !selectedPath.path) return;
             const resultConentString = await window.Api.call(
                 'readFile',
@@ -34,7 +34,7 @@ export default function Content() {
             }
         }
 
-        doIT();
+        loadContent();
     }, [selectedPath]);
 
     if (!content) {
