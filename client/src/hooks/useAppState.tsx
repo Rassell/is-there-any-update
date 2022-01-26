@@ -1,13 +1,11 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 
-import { Dictionary, FileListItem, IPackage } from '../models';
+import { FileListItem } from '../models';
 
 const AppState = {
     fileList: JSON.parse(
         localStorage.getItem('fileList') || '[]',
     ) as FileListItem[],
-    content: undefined as IPackage | undefined,
-    packagesToUpdate: {} as Dictionary,
     selectPath: {
         path: '',
         type: '',
@@ -15,7 +13,6 @@ const AppState = {
     addFilePath: (path: string, type: string) => {},
     removeFilePath: (fileListItem: FileListItem) => {},
     showContent: (fileListItem: FileListItem) => {},
-    setPackagesToUpdate: (packagesToUpdate: Dictionary) => {},
 };
 
 const appStateContext = createContext(AppState);
@@ -37,8 +34,6 @@ function useAppStateProvider(): typeof AppState {
     const [fileList, setFileList] = useState<FileListItem[]>(
         JSON.parse(localStorage.getItem('fileList') || '[]'),
     );
-    const [content, setContent] = useState<IPackage>();
-    const [packagesToUpdate, setPackagesToUpdate] = useState<Dictionary>({});
     const [selectPath, setSelectedPath] = useState<FileListItem>({
         path: '',
         type: '',
@@ -57,35 +52,14 @@ function useAppStateProvider(): typeof AppState {
     }
 
     async function showContent(filePath: FileListItem) {
-        // TODO: show loading
-        setPackagesToUpdate({});
         setSelectedPath(filePath);
-        const resultConentString = await window.Api.call(
-            'readFile',
-            filePath.path,
-        );
-
-        if (resultConentString) {
-            const resultContent: IPackage = JSON.parse(resultConentString);
-            setContent(resultContent);
-
-            try {
-                var response = await window.Api.call('checkVersions', filePath);
-                setPackagesToUpdate(response);
-            } catch (error) {
-                console.log(error);
-            }
-        }
     }
 
     return {
         fileList,
-        content,
-        packagesToUpdate,
         selectPath,
         addFilePath,
         removeFilePath,
         showContent,
-        setPackagesToUpdate,
     };
 }

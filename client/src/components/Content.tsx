@@ -1,12 +1,41 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { useAppState } from '../hooks/useAppState';
-import { Dictionary } from '../models';
+import { Dictionary, IPackage } from '../models';
 
 export default function Content() {
-    const { content, packagesToUpdate, selectPath } = useAppState();
+    const { selectPath } = useAppState();
+    const [content, setContent] = useState<IPackage>();
+    const [packagesToUpdate, setPackagesToUpdate] = useState<Dictionary>({});
     const [dependenciesToUpdate, setDependenciesToUpdate] =
         useState<Dictionary>({});
+
+    useEffect(() => {
+        async function doIT() {
+            if (!selectPath || !selectPath.path) return;
+            const resultConentString = await window.Api.call(
+                'readFile',
+                selectPath.path,
+            );
+
+            if (resultConentString) {
+                const resultContent: IPackage = JSON.parse(resultConentString);
+                setContent(resultContent);
+
+                try {
+                    var response = await window.Api.call(
+                        'checkVersions',
+                        selectPath,
+                    );
+                    setPackagesToUpdate(response);
+                } catch (error) {
+                    console.log(error);
+                }
+            }
+        }
+
+        doIT();
+    }, [selectPath]);
 
     if (!content) {
         return <></>;

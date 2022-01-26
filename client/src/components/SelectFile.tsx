@@ -4,7 +4,7 @@ import { useAppState } from '../hooks/useAppState';
 //TODO: make enum for types
 export default function SelectFile() {
     const { addFilePath } = useAppState();
-    const [path, setSelectedPath] = useState('');
+    const [path, setPath] = useState('');
     const [showModal, setShowModal] = useState(false);
     const [type, setType] = useState('npm');
 
@@ -12,7 +12,7 @@ export default function SelectFile() {
         try {
             var path = await window.Api.call('openFileDialog');
 
-            if (path) setSelectedPath(path);
+            if (path) setPath(path);
         } catch (e) {
             console.log(e);
         }
@@ -31,7 +31,7 @@ export default function SelectFile() {
         <>
             <button
                 onClick={() => {
-                    setSelectedPath('');
+                    setPath('');
                     setShowModal(true);
                 }}>
                 select file
