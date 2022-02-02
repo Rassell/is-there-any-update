@@ -9,7 +9,7 @@ export default function ListFiles() {
             {fileList.map((file, index) => (
                 <div
                     key={`fileList_${index}`}
-                    className={`flex flex-row gap-2 p-2.5 ${
+                    className={`flex flex-row gap-2 p-2.5 hover:bg-zinc-400 ${
                         selectedPath.path === file.path && 'bg-gray-500'
                     }`}>
                     <button
