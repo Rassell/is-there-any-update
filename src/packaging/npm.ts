@@ -6,13 +6,11 @@ type Dictionary = { [key: string]: string };
 
 const REGEX_TO_DETECT_PACKAGES =
     /([a-z|\@|\/|\-]+)\s+([0-9]+\.?[0-9]+\.?[0-9]+)\s+([0-9]+\.?[0-9]+\.?[0-9]+)\s+([0-9]+\.?[0-9]+\.?[0-9]+)/gi;
-var isWin = process.platform === 'win32';
+const REGEX_TO_UPDATE_PACKAGES = /[\d\.]+/g;
+const isWin = process.platform === 'win32';
 
 export function getOutdated(pathToFind: string): Promise<Dictionary> {
-    const path = pathToFind.substring(
-        0,
-        pathToFind.lastIndexOf(isWin ? '\\' : '/'),
-    );
+    const path = cleanPath(pathToFind);
 
     let response = {};
     return new Promise((resolve, reject) => {
@@ -59,27 +57,46 @@ export function updatePackages({
     packagesToUpdate: Dictionary;
     doInstall: boolean;
 }) {
-    let response = {};
-    return new Promise((resolve, reject) => {
+    return new Promise(resolve => {
         const content = JSON.parse(fs.readFileSync(path).toString());
-        console.log(path, packagesToUpdate);
-        console.log(content);
+        const mainUpdate = updateDep(packagesToUpdate);
 
-        Object.entries(content.dependencies).forEach(
-            (value: [string, string]) => {
-                if (packagesToUpdate.hasOwnProperty(value[0])) {
-                    console.log(
-                        value[0],
-                        content.dependencies[value[0]],
-                        content.dependencies[value[1]],
-                        packagesToUpdate[value[0]],
-                        packagesToUpdate[value[1]],
-                    );
-                    content.dependencies[value[0]] = packagesToUpdate[value[1]];
-                }
-            },
-        );
+        mainUpdate(content.dependencies);
+        mainUpdate(content.devDependencies);
+        mainUpdate(content.peerDependencies);
 
-        resolve(true);
+        fs.writeFileSync(path, JSON.stringify(content, null, 2));
+
+        var shell = spawn(`npm i`, {
+            detached: false,
+            cwd: cleanPath(path),
+            shell: true,
+        });
+
+        shell.stderr.on('data', data => {
+            resolve(false);
+        });
+
+        shell.on('close', code => {
+            resolve(true);
+        });
     });
+}
+
+function updateDep(packagesToUpdate: Dictionary) {
+    return function (deps: any) {
+        if (deps)
+            Object.entries(deps).forEach((value: [string, string]) => {
+                if (packagesToUpdate.hasOwnProperty(value[0])) {
+                    deps[value[0]] = deps[value[0]].replace(
+                        REGEX_TO_UPDATE_PACKAGES,
+                        packagesToUpdate[value[0]],
+                    );
+                }
+            });
+    };
+}
+
+function cleanPath(pathToFind: string) {
+    return pathToFind.substring(0, pathToFind.lastIndexOf(isWin ? '\\' : '/'));
 }

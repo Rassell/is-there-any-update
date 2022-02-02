@@ -43,7 +43,7 @@ export function setMethods() {
     );
 
     ipcMain.handle(
-        'updateVersions',
+        'updatePackages',
         (
             _,
             {

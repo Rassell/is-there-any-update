@@ -51,10 +51,18 @@ export default function Content() {
         .concat(Object.entries(content.peerDependencies || {}));
 
     async function updatePackages() {
-        var path = await window.Api.call('updateVersions', {
+        setLoading(true);
+        var success = await window.Api.call('updatePackages', {
             ...selectedPath,
             packagesToUpdate,
         });
+        setLoading(false);
+        console.log(success);
+
+        if (success) {
+            //TODO: show success message?
+            //TODO: update packages
+        }
     }
 
     return (
