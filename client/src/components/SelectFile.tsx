@@ -5,7 +5,7 @@ import { useAppState } from '../hooks/useAppState';
 export default function SelectFile() {
     const { addFilePath } = useAppState();
     const [path, setPath] = useState('');
-    const [type, setType] = useState('npm');
+    const [type, setType] = useState('');
 
     async function openFileDialog() {
         try {
@@ -29,7 +29,7 @@ export default function SelectFile() {
     }
 
     return (
-        <div className='flex flex-row gap-5'>
+        <div className="flex flex-row gap-5">
             <label>
                 <button
                     className="bg-gray-500 rounded-sm font-semibold text-white px-10"
@@ -41,12 +41,14 @@ export default function SelectFile() {
             <label>
                 Type:
                 <select value={type} onChange={e => setType(e.target.value)}>
+                    <option value=""></option>
                     <option value="npm">npm</option>
                     <option value="dotnet">dotnet</option>
                 </select>
             </label>
             <button
-                className="bg-green-500 rounded-sm font-semibold text-white px-10"
+                className="bg-green-700 rounded-sm font-semibold text-white px-10 disabled:opacity-50"
+                disabled={!path || !type}
                 onClick={save}>
                 Add
             </button>
