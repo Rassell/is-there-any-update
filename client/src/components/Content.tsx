@@ -59,17 +59,17 @@ export default function Content() {
                 onClick={updatePackages}>
                 Update selected packages
             </button>
-            <div className="overflow-y-auto flex flex-col gap-1 max-h-screen">
+            <div className="flex flex-col gap-1">
                 {totalDepedencies.map(([key, value]) => (
                     <div
                         key={key}
                         className="flex flex-row grow justify-between">
                         <div className="flex flex-1">{key}</div>
-                        <div className="flex flex-1">{value}</div>
-                        <div className="flex flex-1">
+                        <div className="flex flex-1 justify-center">{value}</div>
+                        <div className="flex flex-1 justify-center">
                             {packagesToUpdate[key]}
                         </div>
-                        <div className="flex flex-1">
+                        <div className="flex flex-1 justify-center">
                             {packagesToUpdate[key] && (
                                 <input
                                     onChange={() => {

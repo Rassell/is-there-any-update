@@ -12,7 +12,11 @@ export default function ListFiles() {
                         onClick={() => removeFilePath(file)}>
                         Remove
                     </button>
-                    <div onClick={() => showContent(file)}>{file.path}</div>
+                    <div
+                        className="cursor-pointer"
+                        onClick={() => showContent(file)}>
+                        {file.path}
+                    </div>
                 </div>
             ))}
         </div>

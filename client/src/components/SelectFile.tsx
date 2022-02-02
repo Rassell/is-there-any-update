@@ -5,7 +5,6 @@ import { useAppState } from '../hooks/useAppState';
 export default function SelectFile() {
     const { addFilePath } = useAppState();
     const [path, setPath] = useState('');
-    const [showModal, setShowModal] = useState(false);
     const [type, setType] = useState('npm');
 
     async function openFileDialog() {
@@ -13,6 +12,8 @@ export default function SelectFile() {
             var path = await window.Api.call('openFileDialog');
 
             if (path) setPath(path);
+
+            //TODO: change type depending on file extension?
         } catch (e) {
             console.log(e);
         }
@@ -21,37 +22,34 @@ export default function SelectFile() {
     async function save() {
         try {
             addFilePath(path, type);
-            setShowModal(false);
+            setPath('');
         } catch (e) {
             console.log(e);
         }
     }
 
     return (
-        <>
+        <div className='flex flex-row gap-5'>
+            <label>
+                <button
+                    className="bg-gray-500 rounded-sm font-semibold text-white px-10"
+                    onClick={openFileDialog}>
+                    Select file
+                </button>
+                {path}
+            </label>
+            <label>
+                Type:
+                <select value={type} onChange={e => setType(e.target.value)}>
+                    <option value="npm">npm</option>
+                    <option value="dotnet">dotnet</option>
+                </select>
+            </label>
             <button
-                onClick={() => {
-                    setPath('');
-                    setShowModal(true);
-                }}>
-                select file
+                className="bg-green-500 rounded-sm font-semibold text-white px-10"
+                onClick={save}>
+                Add
             </button>
-            {showModal && (
-                <div>
-                    <b>piensa que soy un modal</b>
-                    <button onClick={openFileDialog}>select file</button>
-                    <b>selected path: {path}</b>
-                    <label>
-                        <select
-                            value={type}
-                            onChange={e => setType(e.target.value)}>
-                            <option value="npm">npm</option>
-                            <option value="dotnet">dotnet</option>
-                        </select>
-                    </label>
-                    <button onClick={save}>save</button>
-                </div>
-            )}
-        </>
+        </div>
     );
 }

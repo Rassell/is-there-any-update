@@ -2,14 +2,16 @@ import { createContext, useContext, useEffect, useState } from 'react';
 
 import { FileListItem } from '../models';
 
+const fileListItemEmpty = {
+    path: '',
+    type: '',
+};
+
 const AppState = {
     fileList: JSON.parse(
         localStorage.getItem('fileList') || '[]',
     ) as FileListItem[],
-    selectedPath: {
-        path: '',
-        type: '',
-    } as FileListItem,
+    selectedPath: fileListItemEmpty as FileListItem,
     addFilePath: (path: string, type: string) => {},
     removeFilePath: (fileListItem: FileListItem) => {},
     showContent: (fileListItem: FileListItem) => {},
@@ -34,10 +36,8 @@ function useAppStateProvider(): typeof AppState {
     const [fileList, setFileList] = useState<FileListItem[]>(
         JSON.parse(localStorage.getItem('fileList') || '[]'),
     );
-    const [selectedPath, setSelectedPath] = useState<FileListItem>({
-        path: '',
-        type: '',
-    });
+    const [selectedPath, setSelectedPath] =
+        useState<FileListItem>(fileListItemEmpty);
 
     useEffect(() => {
         localStorage.setItem('fileList', JSON.stringify(fileList));
@@ -49,9 +49,12 @@ function useAppStateProvider(): typeof AppState {
 
     function removeFilePath(fileItem: FileListItem) {
         setFileList(fileList.filter(file => file.path !== fileItem.path));
+        if (selectedPath.path === fileItem.path) {
+            setSelectedPath(fileListItemEmpty);
+        }
     }
 
-    async function showContent(filePath: FileListItem) {
+    function showContent(filePath: FileListItem) {
         setSelectedPath(filePath);
     }
 
