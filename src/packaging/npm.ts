@@ -14,83 +14,92 @@ export function getOutdated(pathToFind: string): Promise<Dictionary> {
 
     let response = {};
     return new Promise((resolve, reject) => {
-        var shell = spawn(`npm outdated`, {
-            detached: false,
-            cwd: path,
-            shell: true,
-        });
-
-        shell.stdout.on('data', data => {
-            const matches: RegExpExecArray[] = data
-                .toString()
-                .split('\n')
-                .map((l: string) => REGEX_TO_DETECT_PACKAGES.exec(l))
-                .filter((m: RegExpExecArray) => m !== null);
-            matches.forEach(element => {
-                response = {
-                    ...response,
-                    [element[1]]: element[4],
-                };
+        try {
+            var shell = spawn(`npm outdated`, {
+                detached: false,
+                cwd: path,
+                shell: true,
             });
-        });
 
-        shell.stderr.on('data', data => {
-            reject(data);
-        });
+            shell.stdout.on('data', data => {
+                const matches: RegExpExecArray[] = data
+                    .toString()
+                    .split('\n')
+                    .map((l: string) => REGEX_TO_DETECT_PACKAGES.exec(l))
+                    .filter((m: RegExpExecArray) => m !== null);
+                matches.forEach(element => {
+                    response = {
+                        ...response,
+                        [element[1]]: element[4],
+                    };
+                });
+            });
 
-        shell.on('close', code => {
-            if (code === 1) {
-                resolve(response);
-            } else {
-                reject(code);
-            }
-        });
+            shell.stderr.on('data', data => {
+                reject(data);
+            });
+
+            shell.on('close', code => {
+                if (code === 1) {
+                    resolve(response);
+                } else {
+                    reject(code);
+                }
+            });
+        } catch (error) {
+            reject();
+        }
     });
 }
 
 export function updatePackages({
     path,
-    packagesToUpdate,
+    dependenciesToUpdate,
     doInstall,
 }: {
     path: string;
-    packagesToUpdate: Dictionary;
+    dependenciesToUpdate: Dictionary;
     doInstall: boolean;
 }) {
+    if (!dependenciesToUpdate) return;
     return new Promise(resolve => {
-        const content = JSON.parse(fs.readFileSync(path).toString());
-        const mainUpdate = updateDep(packagesToUpdate);
+        try {
+            const content = JSON.parse(fs.readFileSync(path).toString());
+            const mainUpdate = updateDep(dependenciesToUpdate);
 
-        mainUpdate(content.dependencies);
-        mainUpdate(content.devDependencies);
-        mainUpdate(content.peerDependencies);
+            mainUpdate(content.dependencies);
+            mainUpdate(content.devDependencies);
+            mainUpdate(content.peerDependencies);
 
-        fs.writeFileSync(path, JSON.stringify(content, null, 2));
+            fs.writeFileSync(path, JSON.stringify(content, null, 2));
 
-        var shell = spawn(`npm i`, {
-            detached: false,
-            cwd: cleanPath(path),
-            shell: true,
-        });
+            var shell = spawn(`npm i`, {
+                detached: false,
+                cwd: cleanPath(path),
+                shell: true,
+            });
 
-        shell.stderr.on('data', data => {
+            shell.stderr.on('data', data => {
+                resolve(false);
+            });
+
+            shell.on('close', code => {
+                resolve(true);
+            });
+        } catch (error) {
             resolve(false);
-        });
-
-        shell.on('close', code => {
-            resolve(true);
-        });
+        }
     });
 }
 
-function updateDep(packagesToUpdate: Dictionary) {
+function updateDep(dependenciesToUpdate: Dictionary) {
     return function (deps: any) {
         if (deps)
             Object.entries(deps).forEach((value: [string, string]) => {
-                if (packagesToUpdate.hasOwnProperty(value[0])) {
+                if (dependenciesToUpdate.hasOwnProperty(value[0])) {
                     deps[value[0]] = deps[value[0]].replace(
                         REGEX_TO_UPDATE_PACKAGES,
-                        packagesToUpdate[value[0]],
+                        dependenciesToUpdate[value[0]],
                     );
                 }
             });

@@ -48,19 +48,19 @@ export function setMethods() {
             _,
             {
                 path,
-                packagesToUpdate,
+                dependenciesToUpdate,
                 doInstall,
                 type,
             }: {
                 path: string;
-                packagesToUpdate: { [key: string]: string };
+                dependenciesToUpdate: { [key: string]: string };
                 doInstall: boolean;
                 type: string;
             },
         ) => {
             return packaging[type].updatePackages({
                 path,
-                packagesToUpdate,
+                dependenciesToUpdate,
                 doInstall,
             });
         },

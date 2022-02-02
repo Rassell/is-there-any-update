@@ -3,11 +3,24 @@ import { useEffect, useState } from 'react';
 import { useAppState } from '../hooks/useAppState';
 import { Dictionary, IPackage } from '../models';
 
+function aaaaaaaaaaasafdAAA(
+    deps: Dictionary,
+    dependenciesToUpdate: Dictionary,
+) {
+    if (!deps) return {};
+    return Object.entries(deps).reduce((acc, [key, value]) => {
+        acc[key] = dependenciesToUpdate[key] || value;
+
+        return acc;
+    }, {} as Dictionary);
+}
+
 export default function Content() {
     const { selectedPath } = useAppState();
     const [content, setContent] = useState<IPackage>();
     const [loading, setLoading] = useState<boolean>(false);
-    const [packagesToUpdate, setPackagesToUpdate] = useState<Dictionary>({});
+    const [packagesWithNewVersions, setPackagesWithNewVersions] =
+        useState<Dictionary>({});
     const [dependenciesToUpdate, setDependenciesToUpdate] =
         useState<Dictionary>({});
 
@@ -30,7 +43,7 @@ export default function Content() {
                         'checkVersions',
                         selectedPath,
                     );
-                    setPackagesToUpdate(response);
+                    setPackagesWithNewVersions(response);
                 } catch (error) {
                     console.log(error);
                 }
@@ -46,24 +59,38 @@ export default function Content() {
         return <></>;
     }
 
-    const totalDepedencies = Object.entries(content.dependencies || {})
-        .concat(Object.entries(content.devDependencies || {}))
-        .concat(Object.entries(content.peerDependencies || {}));
-
     async function updatePackages() {
         setLoading(true);
         var success = await window.Api.call('updatePackages', {
             ...selectedPath,
-            packagesToUpdate,
+            dependenciesToUpdate,
         });
         setLoading(false);
-        console.log(success);
 
-        if (success) {
+        if (success && content) {
+            setContent({
+                ...content,
+                dependencies: aaaaaaaaaaasafdAAA(
+                    content.dependencies,
+                    dependenciesToUpdate,
+                ),
+                devDependencies: aaaaaaaaaaasafdAAA(
+                    content.devDependencies,
+                    dependenciesToUpdate,
+                ),
+                peerDependencies: aaaaaaaaaaasafdAAA(
+                    content.peerDependencies,
+                    dependenciesToUpdate,
+                ),
+            });
+            setDependenciesToUpdate({});
             //TODO: show success message?
-            //TODO: update packages
         }
     }
+
+    const totalDepedencies = Object.entries(content.dependencies || {})
+        .concat(Object.entries(content.devDependencies || {}))
+        .concat(Object.entries(content.peerDependencies || {}));
 
     return (
         <div className="flex flex-col gap-1 h-full">
@@ -86,10 +113,10 @@ export default function Content() {
                                     {value}
                                 </div>
                                 <div className="flex flex-1 justify-center">
-                                    {packagesToUpdate[key]}
+                                    {packagesWithNewVersions[key]}
                                 </div>
                                 <div className="flex flex-1 justify-center">
-                                    {packagesToUpdate[key] && (
+                                    {packagesWithNewVersions[key] && (
                                         <input
                                             onChange={() => {
                                                 if (dependenciesToUpdate[key]) {
@@ -103,7 +130,7 @@ export default function Content() {
                                                 } else {
                                                     setDependenciesToUpdate({
                                                         ...dependenciesToUpdate,
-                                                        [key]: packagesToUpdate[
+                                                        [key]: packagesWithNewVersions[
                                                             key
                                                         ],
                                                     });

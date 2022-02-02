@@ -10,11 +10,11 @@ export default {
         getOutdated(path: string): Promise<Dictionary>;
         updatePackages({
             path,
-            packagesToUpdate,
+            dependenciesToUpdate,
             doInstall,
         }: {
             path: string;
-            packagesToUpdate: Dictionary;
+            dependenciesToUpdate: Dictionary;
             doInstall: boolean;
         }): Promise<unknown>;
     };
