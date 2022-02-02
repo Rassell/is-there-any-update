@@ -6,6 +6,7 @@ import { Dictionary, IPackage } from '../models';
 export default function Content() {
     const { selectedPath } = useAppState();
     const [content, setContent] = useState<IPackage>();
+    const [loading, setLoading] = useState<boolean>(false);
     const [packagesToUpdate, setPackagesToUpdate] = useState<Dictionary>({});
     const [dependenciesToUpdate, setDependenciesToUpdate] =
         useState<Dictionary>({});
@@ -13,6 +14,8 @@ export default function Content() {
     useEffect(() => {
         async function loadContent() {
             if (!selectedPath || !selectedPath.path) return;
+            setLoading(true);
+
             const resultConentString = await window.Api.call(
                 'readFile',
                 selectedPath.path,
@@ -32,6 +35,8 @@ export default function Content() {
                     console.log(error);
                 }
             }
+
+            setLoading(false);
         }
 
         loadContent();
@@ -52,6 +57,11 @@ export default function Content() {
         });
     }
 
+    if (loading)
+        return (
+            <div className="border-t-4 border-red-500 border-solid rounded-full w-24 h-24 animate-spin m-auto" />
+        );
+
     return (
         <div className="flex flex-col gap-1 grow">
             <button
@@ -65,7 +75,9 @@ export default function Content() {
                         key={key}
                         className="flex flex-row grow justify-between">
                         <div className="flex flex-1">{key}</div>
-                        <div className="flex flex-1 justify-center">{value}</div>
+                        <div className="flex flex-1 justify-center">
+                            {value}
+                        </div>
                         <div className="flex flex-1 justify-center">
                             {packagesToUpdate[key]}
                         </div>
