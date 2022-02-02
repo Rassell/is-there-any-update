@@ -58,7 +58,7 @@ export default function Content() {
     }
 
     return (
-        <div className="flex flex-col gap-1 grow overflow-y-scroll">
+        <div className="flex flex-col gap-1 h-full">
             {loading ? (
                 <div className="border-t-4 border-red-500 border-solid rounded-full w-24 h-24 animate-spin m-auto" />
             ) : (
@@ -68,7 +68,7 @@ export default function Content() {
                         onClick={updatePackages}>
                         Update selected packages
                     </button>
-                    <div className="flex flex-col gap-1">
+                    <div className="flex flex-col gap-1 grow overflow-y-scroll">
                         {totalDepedencies.map(([key, value]) => (
                             <div
                                 key={key}

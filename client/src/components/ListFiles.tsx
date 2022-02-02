@@ -5,7 +5,7 @@ export default function ListFiles() {
         useAppState();
 
     return (
-        <div className="flex flex-col gap-4 pr-5 border-r border-solid border-black">
+        <div className="flex flex-col gap-4">
             {fileList.map((file, index) => (
                 <div
                     key={`fileList_${index}`}

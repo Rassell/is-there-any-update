@@ -29,7 +29,7 @@ export default function SelectFile() {
     }
 
     return (
-        <div className="flex flex-row gap-5">
+        <div className="flex flex-row gap-5 border-b border-solid border-black pb-5">
             <label>
                 <button
                     className="bg-gray-500 rounded-sm font-semibold text-white px-10"

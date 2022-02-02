@@ -68,6 +68,13 @@ export function updatePackages({
         Object.entries(content.dependencies).forEach(
             (value: [string, string]) => {
                 if (packagesToUpdate.hasOwnProperty(value[0])) {
+                    console.log(
+                        value[0],
+                        content.dependencies[value[0]],
+                        content.dependencies[value[1]],
+                        packagesToUpdate[value[0]],
+                        packagesToUpdate[value[1]],
+                    );
                     content.dependencies[value[0]] = packagesToUpdate[value[1]];
                 }
             },
