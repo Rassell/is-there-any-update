@@ -2,10 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
-body,
-.App {
-    height: 100vh;
-}
+/* body, */
+/* .App { */
+/*     height: 100vh; */
+/* } */
 
 body {
     margin: 0;

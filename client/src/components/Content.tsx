@@ -53,41 +53,49 @@ export default function Content() {
     }
 
     return (
-        <div className="fileContent">
-            <button onClick={updatePackages}>Update selected packages</button>
-            {totalDepedencies.map(([key, value]) => (
-                <div key={key} className="fileContent-row">
-                    <div className="fileContent-row-key">{key}</div>
-                    <div className="fileContent-row-version">{value}</div>
-                    <div className="fileContent-row-newVersion">
-                        {packagesToUpdate[key]}
+        <div className="flex flex-col gap-1 grow">
+            <button
+                className="bg-indigo-500 rounded-sm font-semibold text-white px-10 w-48"
+                onClick={updatePackages}>
+                Update selected packages
+            </button>
+            <div className="overflow-y-auto flex flex-col gap-1 max-h-screen">
+                {totalDepedencies.map(([key, value]) => (
+                    <div
+                        key={key}
+                        className="flex flex-row grow justify-between">
+                        <div className="flex flex-1">{key}</div>
+                        <div className="flex flex-1">{value}</div>
+                        <div className="flex flex-1">
+                            {packagesToUpdate[key]}
+                        </div>
+                        <div className="flex flex-1">
+                            {packagesToUpdate[key] && (
+                                <input
+                                    onChange={() => {
+                                        if (dependenciesToUpdate[key]) {
+                                            const newDependencies = {
+                                                ...dependenciesToUpdate,
+                                            };
+                                            delete newDependencies[key];
+                                            setDependenciesToUpdate(
+                                                newDependencies,
+                                            );
+                                        } else {
+                                            setDependenciesToUpdate({
+                                                ...dependenciesToUpdate,
+                                                [key]: packagesToUpdate[key],
+                                            });
+                                        }
+                                    }}
+                                    type="checkbox"
+                                    checked={!!dependenciesToUpdate[key]}
+                                />
+                            )}
+                        </div>
                     </div>
-                    <div className="fileContent-row-checkbox">
-                        {packagesToUpdate[key] && (
-                            <input
-                                onChange={() => {
-                                    if (dependenciesToUpdate[key]) {
-                                        const newDependencies = {
-                                            ...dependenciesToUpdate,
-                                        };
-                                        delete newDependencies[key];
-                                        setDependenciesToUpdate(
-                                            newDependencies,
-                                        );
-                                    } else {
-                                        setDependenciesToUpdate({
-                                            ...dependenciesToUpdate,
-                                            [key]: packagesToUpdate[key],
-                                        });
-                                    }
-                                }}
-                                type="checkbox"
-                                checked={!!dependenciesToUpdate[key]}
-                            />
-                        )}
-                    </div>
-                </div>
-            ))}
+                ))}
+            </div>
         </div>
     );
 }

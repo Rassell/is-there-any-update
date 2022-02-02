@@ -1,19 +1,15 @@
 import { Content, ListFiles, SelectFile } from './components';
 
-import './App.scss';
-
-function App() {
+export default function App() {
     return (
-        <div className="App">
-            <div className="top">
+        <div>
+            <div>
                 <SelectFile />
             </div>
-            <div className="body">
+            <div className="flex flex-row grow justify-between gap-10">
                 <ListFiles />
                 <Content />
             </div>
         </div>
     );
 }
-
-export default App;
