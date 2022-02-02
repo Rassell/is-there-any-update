@@ -57,57 +57,62 @@ export default function Content() {
         });
     }
 
-    if (loading)
-        return (
-            <div className="border-t-4 border-red-500 border-solid rounded-full w-24 h-24 animate-spin m-auto" />
-        );
-
     return (
-        <div className="flex flex-col gap-1 grow">
-            <button
-                className="bg-indigo-500 rounded-sm font-semibold text-white px-10 w-48"
-                onClick={updatePackages}>
-                Update selected packages
-            </button>
-            <div className="flex flex-col gap-1">
-                {totalDepedencies.map(([key, value]) => (
-                    <div
-                        key={key}
-                        className="flex flex-row grow justify-between">
-                        <div className="flex flex-1">{key}</div>
-                        <div className="flex flex-1 justify-center">
-                            {value}
-                        </div>
-                        <div className="flex flex-1 justify-center">
-                            {packagesToUpdate[key]}
-                        </div>
-                        <div className="flex flex-1 justify-center">
-                            {packagesToUpdate[key] && (
-                                <input
-                                    onChange={() => {
-                                        if (dependenciesToUpdate[key]) {
-                                            const newDependencies = {
-                                                ...dependenciesToUpdate,
-                                            };
-                                            delete newDependencies[key];
-                                            setDependenciesToUpdate(
-                                                newDependencies,
-                                            );
-                                        } else {
-                                            setDependenciesToUpdate({
-                                                ...dependenciesToUpdate,
-                                                [key]: packagesToUpdate[key],
-                                            });
-                                        }
-                                    }}
-                                    type="checkbox"
-                                    checked={!!dependenciesToUpdate[key]}
-                                />
-                            )}
-                        </div>
+        <div className="flex flex-col gap-1 grow overflow-y-scroll">
+            {loading ? (
+                <div className="border-t-4 border-red-500 border-solid rounded-full w-24 h-24 animate-spin m-auto" />
+            ) : (
+                <>
+                    <button
+                        className="bg-indigo-500 rounded-sm font-semibold text-white px-10 w-48"
+                        onClick={updatePackages}>
+                        Update selected packages
+                    </button>
+                    <div className="flex flex-col gap-1">
+                        {totalDepedencies.map(([key, value]) => (
+                            <div
+                                key={key}
+                                className="flex flex-row grow justify-between">
+                                <div className="flex flex-1">{key}</div>
+                                <div className="flex flex-1 justify-center">
+                                    {value}
+                                </div>
+                                <div className="flex flex-1 justify-center">
+                                    {packagesToUpdate[key]}
+                                </div>
+                                <div className="flex flex-1 justify-center">
+                                    {packagesToUpdate[key] && (
+                                        <input
+                                            onChange={() => {
+                                                if (dependenciesToUpdate[key]) {
+                                                    const newDependencies = {
+                                                        ...dependenciesToUpdate,
+                                                    };
+                                                    delete newDependencies[key];
+                                                    setDependenciesToUpdate(
+                                                        newDependencies,
+                                                    );
+                                                } else {
+                                                    setDependenciesToUpdate({
+                                                        ...dependenciesToUpdate,
+                                                        [key]: packagesToUpdate[
+                                                            key
+                                                        ],
+                                                    });
+                                                }
+                                            }}
+                                            type="checkbox"
+                                            checked={
+                                                !!dependenciesToUpdate[key]
+                                            }
+                                        />
+                                    )}
+                                </div>
+                            </div>
+                        ))}
                     </div>
-                ))}
-            </div>
+                </>
+            )}
         </div>
     );
 }
