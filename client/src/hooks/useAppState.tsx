@@ -7,17 +7,9 @@ const fileListItemEmpty = {
     type: '',
 };
 
-const AppState = {
-    fileList: JSON.parse(
-        localStorage.getItem('fileList') || '[]',
-    ) as FileListItem[],
-    selectedPath: fileListItemEmpty as FileListItem,
-    addFilePath: (path: string, type: string) => {},
-    removeFilePath: (fileListItem: FileListItem) => {},
-    showContent: (fileListItem: FileListItem) => {},
-};
-
-const appStateContext = createContext(AppState);
+const appStateContext = createContext(
+    {} as ReturnType<typeof useAppStateProvider>,
+);
 
 export function useAppState() {
     return useContext(appStateContext);
@@ -32,7 +24,7 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
     );
 }
 
-function useAppStateProvider(): typeof AppState {
+function useAppStateProvider() {
     const [fileList, setFileList] = useState<FileListItem[]>(
         JSON.parse(localStorage.getItem('fileList') || '[]'),
     );
