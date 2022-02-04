@@ -1,5 +1,5 @@
 import { useAppState } from '../hooks/useAppState';
-import TrashIcon from '../assets/icons/trash_icon.png';
+import TrashIcon from '../assets/icons/trash.png';
 
 export default function ListFiles() {
     const { fileList, selectedPath, removeFilePath, showContent } =
