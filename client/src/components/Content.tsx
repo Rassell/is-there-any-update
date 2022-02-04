@@ -103,7 +103,7 @@ export default function Content() {
                 </button>
             </div>
             {loading ? (
-                <div className="border-t-4 border-red-500 border-solid rounded-full w-24 h-24 animate-spin m-auto" />
+                <div className="m-auto w-24 h-24 border-4 border-solid border-red-500 border-t-transparent rounded-full animate-spin" />
             ) : (
                 <div className="flex flex-col gap-1 grow overflow-y-scroll">
                     {totalDepedencies.map(([key, value]) => (
