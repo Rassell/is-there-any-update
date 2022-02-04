@@ -11,7 +11,16 @@ export default function SelectFile() {
         try {
             var path = await window.Api.call('openFileDialog');
 
-            if (path) setPath(path);
+            if (path) {
+                setPath(path);
+
+                //TODO Improve this logic
+                if (path.endsWith('json')) {
+                    setType('npm');
+                } else {
+                    setType('dotnet');
+                }
+            }
 
             //TODO: change type depending on file extension?
         } catch (e) {

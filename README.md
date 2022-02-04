@@ -4,5 +4,6 @@
 
 - [] Routing
 - [] Testing
+- [] Change icon!
 - [] Add alias to folders?
 - [] Redux (needed?)

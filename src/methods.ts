@@ -15,7 +15,6 @@ export function setMethods() {
     ipcMain.handle('openFileDialog', async () => {
         const file = await dialog.showOpenDialog({
             properties: ['treatPackageAsDirectory'],
-            filters: [{ name: 'npm', extensions: ['json'] }],
         });
 
         if (file.canceled) {
