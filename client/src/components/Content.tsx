@@ -94,59 +94,58 @@ export default function Content() {
 
     return (
         <div className="flex flex-col gap-1 h-full">
+            <div className="flex flex-row gap-5 border-b border-solid border-black pb-5 justify-end">
+                <button
+                    disabled={loading}
+                    className="bg-indigo-500 rounded-sm font-semibold text-white px-10 disabled:bg-indigo-300"
+                    onClick={updatePackages}>
+                    Update selected packages
+                </button>
+            </div>
             {loading ? (
                 <div className="border-t-4 border-red-500 border-solid rounded-full w-24 h-24 animate-spin m-auto" />
             ) : (
-                <>
-                    <button
-                        className="bg-indigo-500 rounded-sm font-semibold text-white px-10 w-48"
-                        onClick={updatePackages}>
-                        Update selected packages
-                    </button>
-                    <div className="flex flex-col gap-1 grow overflow-y-scroll">
-                        {totalDepedencies.map(([key, value]) => (
-                            <div
-                                key={key}
-                                className="flex flex-row grow justify-between">
-                                <div className="flex flex-1">{key}</div>
-                                <div className="flex flex-1 justify-center">
-                                    {value}
-                                </div>
-                                <div className="flex flex-1 justify-center">
-                                    {packagesWithNewVersions[key]}
-                                </div>
-                                <div className="flex flex-1 justify-center">
-                                    {packagesWithNewVersions[key] && (
-                                        <input
-                                            onChange={() => {
-                                                if (dependenciesToUpdate[key]) {
-                                                    const newDependencies = {
-                                                        ...dependenciesToUpdate,
-                                                    };
-                                                    delete newDependencies[key];
-                                                    setDependenciesToUpdate(
-                                                        newDependencies,
-                                                    );
-                                                } else {
-                                                    setDependenciesToUpdate({
-                                                        ...dependenciesToUpdate,
-                                                        [key]: packagesWithNewVersions[
-                                                            key
-                                                        ],
-                                                    });
-                                                }
-                                            }}
-                                            type="checkbox"
-                                            checked={
-                                                !!dependenciesToUpdate[key]
-                                            }
-                                        />
-                                    )}
-                                </div>
+                <div className="flex flex-col gap-1 grow overflow-y-scroll">
+                    {totalDepedencies.map(([key, value]) => (
+                        <div
+                            key={key}
+                            className="flex flex-row grow justify-between">
+                            <div className="flex flex-1">{key}</div>
+                            <div className="flex flex-1 justify-center">
+                                {value}
                             </div>
-                        ))}
-                    </div>
-                </>
+                            <div className="flex flex-1 justify-center">
+                                {packagesWithNewVersions[key]}
+                            </div>
+                            <div className="flex flex-1 justify-center">
+                                {packagesWithNewVersions[key] && (
+                                    <input
+                                        onChange={() => {
+                                            if (dependenciesToUpdate[key]) {
+                                                const newDependencies = {
+                                                    ...dependenciesToUpdate,
+                                                };
+                                                delete newDependencies[key];
+                                                setDependenciesToUpdate(
+                                                    newDependencies,
+                                                );
+                                            } else {
+                                                setDependenciesToUpdate({
+                                                    ...dependenciesToUpdate,
+                                                    [key]: packagesWithNewVersions[
+                                                        key
+                                                    ],
+                                                });
+                                            }
+                                        }}
+                                        type="checkbox"
+                                        checked={!!dependenciesToUpdate[key]}
+                                    />
+                                )}
+                            </div>
+                        </div>
+                    ))}
+                </div>
             )}
         </div>
     );
