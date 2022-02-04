@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { useAppState } from '../hooks/useAppState';
 import { Dictionary, IPackage } from '../models';
 
-function aaaaaaaaaaasafdAAA(
+function DependencyGenerator(
     deps: Dictionary,
     dependenciesToUpdate: Dictionary,
 ) {
@@ -70,15 +70,15 @@ export default function Content() {
         if (success && content) {
             setContent({
                 ...content,
-                dependencies: aaaaaaaaaaasafdAAA(
+                dependencies: DependencyGenerator(
                     content.dependencies,
                     dependenciesToUpdate,
                 ),
-                devDependencies: aaaaaaaaaaasafdAAA(
+                devDependencies: DependencyGenerator(
                     content.devDependencies,
                     dependenciesToUpdate,
                 ),
-                peerDependencies: aaaaaaaaaaasafdAAA(
+                peerDependencies: DependencyGenerator(
                     content.peerDependencies,
                     dependenciesToUpdate,
                 ),
