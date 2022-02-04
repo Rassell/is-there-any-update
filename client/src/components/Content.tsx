@@ -1,16 +1,25 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import { useAppState } from '../hooks/useAppState';
 import { Dictionary, IPackage } from '../models';
 
-function DependencyGenerator(
-    deps: Dictionary,
-    dependenciesToUpdate: Dictionary,
-) {
-    if (!deps) return {};
+function DependencyUpdater(deps: Dictionary, dependenciesToUpdate: Dictionary) {
+    if (!deps || !dependenciesToUpdate) return {};
     return Object.entries(deps).reduce((acc, [key, value]) => {
         acc[key] = dependenciesToUpdate[key] || value;
 
+        return acc;
+    }, {} as Dictionary);
+}
+
+function PackageCleaner(
+    packagesToUpdate: Dictionary,
+    dependenciesToUpdate: Dictionary,
+) {
+    if (!packagesToUpdate || !dependenciesToUpdate) return {};
+    return Object.entries(packagesToUpdate).reduce((acc, [key, value]) => {
+        if (dependenciesToUpdate[key] !== acc[key]) delete acc[key];
+        else acc[key] = value;
         return acc;
     }, {} as Dictionary);
 }
@@ -24,36 +33,36 @@ export default function Content() {
     const [dependenciesToUpdate, setDependenciesToUpdate] =
         useState<Dictionary>({});
 
-    useEffect(() => {
-        async function loadContent() {
-            if (!selectedPath || !selectedPath.path) return;
-            setLoading(true);
+    const loadContent = useCallback(async () => {
+        if (!selectedPath || !selectedPath.path) return;
+        setLoading(true);
 
-            const resultConentString = await window.Api.call(
-                'readFile',
-                selectedPath.path,
-            );
+        const resultConentString = await window.Api.call(
+            'readFile',
+            selectedPath.path,
+        );
 
-            if (resultConentString) {
-                const resultContent: IPackage = JSON.parse(resultConentString);
-                setContent(resultContent);
+        if (resultConentString) {
+            const resultContent: IPackage = JSON.parse(resultConentString);
+            setContent(resultContent);
 
-                try {
-                    var response = await window.Api.call(
-                        'checkVersions',
-                        selectedPath,
-                    );
-                    setPackagesWithNewVersions(response);
-                } catch (error) {
-                    console.log(error);
-                }
+            try {
+                var response = await window.Api.call(
+                    'checkVersions',
+                    selectedPath,
+                );
+                setPackagesWithNewVersions(response);
+            } catch (error) {
+                console.log(error);
             }
-
-            setLoading(false);
         }
 
-        loadContent();
+        setLoading(false);
     }, [selectedPath]);
+
+    useEffect(() => {
+        loadContent();
+    }, [loadContent]);
 
     if (!content) {
         return <></>;
@@ -70,19 +79,22 @@ export default function Content() {
         if (success && content) {
             setContent({
                 ...content,
-                dependencies: DependencyGenerator(
+                dependencies: DependencyUpdater(
                     content.dependencies,
                     dependenciesToUpdate,
                 ),
-                devDependencies: DependencyGenerator(
+                devDependencies: DependencyUpdater(
                     content.devDependencies,
                     dependenciesToUpdate,
                 ),
-                peerDependencies: DependencyGenerator(
+                peerDependencies: DependencyUpdater(
                     content.peerDependencies,
                     dependenciesToUpdate,
                 ),
             });
+            setPackagesWithNewVersions(
+                PackageCleaner(packagesWithNewVersions, dependenciesToUpdate),
+            );
             setDependenciesToUpdate({});
             //TODO: show success message?
         }
@@ -95,6 +107,12 @@ export default function Content() {
     return (
         <div className="flex flex-col gap-1 h-full">
             <div className="flex flex-row gap-5 border-b border-solid border-black pb-5 justify-end">
+                <button
+                    disabled={loading}
+                    className="bg-green-500 rounded-sm font-semibold text-white px-10 disabled:bg-green-300"
+                    onClick={loadContent}>
+                    Refresh
+                </button>
                 <button
                     disabled={loading}
                     className="bg-indigo-500 rounded-sm font-semibold text-white px-10 disabled:bg-indigo-300"
