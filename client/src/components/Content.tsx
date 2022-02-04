@@ -123,7 +123,7 @@ export default function Content() {
             {loading ? (
                 <div className="m-auto w-24 h-24 border-4 border-solid border-red-500 border-t-transparent rounded-full animate-spin" />
             ) : (
-                <div className="flex flex-col gap-1 grow overflow-y-scroll">
+                <div className="flex flex-col gap-1 grow overflow-y-auto">
                     {totalDepedencies.map(([key, value]) => (
                         <div
                             key={key}

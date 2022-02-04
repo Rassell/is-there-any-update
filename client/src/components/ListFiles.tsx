@@ -1,4 +1,5 @@
 import { useAppState } from '../hooks/useAppState';
+import TrashIcon from '../assets/icons/trash_icon.png';
 
 export default function ListFiles() {
     const { fileList, selectedPath, removeFilePath, showContent } =
@@ -13,9 +14,9 @@ export default function ListFiles() {
                         selectedPath.path === file.path && 'bg-gray-500'
                     }`}>
                     <button
-                        className="bg-red-500 rounded-sm font-semibold text-white px-10"
+                        className="bg-red-500 rounded-sm"
                         onClick={() => removeFilePath(file)}>
-                        Remove
+                        <img src={TrashIcon} alt="TrashIcon" width={20} />
                     </button>
                     <div
                         className="cursor-pointer"
