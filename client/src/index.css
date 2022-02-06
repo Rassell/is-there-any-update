@@ -1,7 +1,6 @@
-body,
-.App {
-    height: 100vh;
-}
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 body {
     margin: 0;

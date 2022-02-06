@@ -8,7 +8,7 @@ import { setMainWindow, setMethods } from './methods';
 function createWindow() {
     // Create the browser window.
     const mainWindow = new BrowserWindow({
-        width: 800,
+        width: 1200,
         height: 600,
         title: 'Is there any update?',
         webPreferences: {
