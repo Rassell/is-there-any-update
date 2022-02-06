@@ -10,6 +10,7 @@ function createWindow() {
     const mainWindow = new BrowserWindow({
         width: 800,
         height: 600,
+        title: 'Is there any update?',
         webPreferences: {
             nodeIntegration: false,
             devTools: isDev,
