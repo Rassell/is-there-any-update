@@ -18,7 +18,7 @@ export default function ListFiles() {
     }
 
     useEffect(() => {
-        dispatch(loadContentAsync(selectedPath)());
+        if (selectedPath) dispatch(loadContentAsync(selectedPath)());
     }, [dispatch, selectedPath]);
 
     return (
@@ -37,7 +37,9 @@ export default function ListFiles() {
                     <div
                         className="cursor-pointer"
                         onClick={() => dispatch(setSelectedPath(path))}>
-                        {getInfo(path).isLoading ? "Loading..." : getInfo(path).path}
+                        {getInfo(path).isLoading
+                            ? 'Loading...'
+                            : getInfo(path).path}
                     </div>
                 </div>
             ))}
