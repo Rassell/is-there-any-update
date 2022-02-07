@@ -1,40 +1,18 @@
 import { useState } from 'react';
-import { useAppSelector } from '../hooks/storeHooks';
 
-import { Dictionary, IPackage } from '../models';
-
-function DependencyUpdater(deps: Dictionary, dependenciesToUpdate: Dictionary) {
-    if (!deps || !dependenciesToUpdate) return {};
-    return Object.entries(deps).reduce((acc, [key, value]) => {
-        acc[key] = dependenciesToUpdate[key] || value;
-
-        return acc;
-    }, {} as Dictionary);
-}
-
-function PackageCleaner(
-    packagesToUpdate: Dictionary,
-    dependenciesToUpdate: Dictionary,
-) {
-    if (!packagesToUpdate || !dependenciesToUpdate) return {};
-    return Object.entries(packagesToUpdate).reduce((acc, [key, value]) => {
-        if (dependenciesToUpdate[key] !== acc[key]) delete acc[key];
-        else acc[key] = value;
-        return acc;
-    }, {} as Dictionary);
-}
+import { useAppDispatch, useAppSelector } from '../hooks/storeHooks';
+import { Dictionary } from '../models';
+import { updatePackagesAsync } from '../store/fileReducer';
 
 export default function Content() {
+    const dispatch = useAppDispatch();
     const { selectedPath } = useAppSelector(appState => appState.app);
-    const paths = useAppSelector(appState =>
-        Object.entries(appState).find(([key]) => key === selectedPath),
+    const { content, updatesAvailable, isLoading } = useAppSelector(
+        appState =>
+            Object.entries(appState).find(
+                ([key]) => key === selectedPath,
+            )![1] as any,
     );
-    const [content, setContent] = useState<IPackage>(
-        paths && (paths[1] as any).content,
-    );
-    const [loading, setLoading] = useState<boolean>(false);
-    const [packagesWithNewVersions, setPackagesWithNewVersions] =
-        useState<Dictionary>({});
     const [dependenciesToUpdate, setDependenciesToUpdate] =
         useState<Dictionary>({});
 
@@ -42,35 +20,12 @@ export default function Content() {
         return <></>;
     }
 
-    async function updatePackages() {
-        setLoading(true);
-        var success = await window.Api.call('updatePackages', {
-            ...selectedPath,
-            dependenciesToUpdate,
-        });
-        setLoading(false);
+    async function updateDependencies() {
+        const action = updatePackagesAsync(selectedPath);
+        const result = await dispatch(action(dependenciesToUpdate));
 
-        if (success && content) {
-            setContent({
-                ...content,
-                dependencies: DependencyUpdater(
-                    content.dependencies,
-                    dependenciesToUpdate,
-                ),
-                devDependencies: DependencyUpdater(
-                    content.devDependencies,
-                    dependenciesToUpdate,
-                ),
-                peerDependencies: DependencyUpdater(
-                    content.peerDependencies,
-                    dependenciesToUpdate,
-                ),
-            });
-            setPackagesWithNewVersions(
-                PackageCleaner(packagesWithNewVersions, dependenciesToUpdate),
-            );
+        if (action.fulfilled.match(result as any)) {
             setDependenciesToUpdate({});
-            //TODO: show success message?
         }
     }
 
@@ -82,22 +37,22 @@ export default function Content() {
         <div className="flex flex-col gap-1 h-full">
             <div className="flex flex-row gap-5 border-b border-solid border-black pb-5 justify-end">
                 <button
-                    disabled={loading}
+                    disabled={isLoading}
                     className="bg-green-500 rounded-sm font-semibold text-white px-10 disabled:bg-green-300">
                     Refresh
                 </button>
                 <button
-                    disabled={loading}
+                    disabled={isLoading}
                     className="bg-indigo-500 rounded-sm font-semibold text-white px-10 disabled:bg-indigo-300"
-                    onClick={updatePackages}>
+                    onClick={updateDependencies}>
                     Update selected packages
                 </button>
             </div>
-            {paths && (paths[1] as any).isLoading ? (
+            {isLoading ? (
                 <div className="m-auto w-24 h-24 border-4 border-solid border-red-500 border-t-transparent rounded-full animate-spin" />
             ) : (
                 <div className="flex flex-col gap-1 grow overflow-y-auto">
-                    {totalDepedencies.map(([key, value]) => (
+                    {totalDepedencies.map(([key, value]: any) => (
                         <div
                             key={key}
                             className="flex flex-row grow justify-between">
@@ -106,10 +61,10 @@ export default function Content() {
                                 {value}
                             </div>
                             <div className="flex flex-1 justify-center">
-                                {packagesWithNewVersions[key]}
+                                {updatesAvailable[key]}
                             </div>
                             <div className="flex flex-1 justify-center">
-                                {packagesWithNewVersions[key] && (
+                                {updatesAvailable[key] && (
                                     <input
                                         onChange={() => {
                                             if (dependenciesToUpdate[key]) {
@@ -123,7 +78,7 @@ export default function Content() {
                                             } else {
                                                 setDependenciesToUpdate({
                                                     ...dependenciesToUpdate,
-                                                    [key]: packagesWithNewVersions[
+                                                    [key]: updatesAvailable[
                                                         key
                                                     ],
                                                 });
