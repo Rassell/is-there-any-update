@@ -1,14 +1,29 @@
+import { useEffect } from 'react';
 import TrashIcon from '../assets/icons/trash.png';
 import { useAppDispatch, useAppSelector } from '../hooks/storeHooks';
 import { removePath, setSelectedPath } from '../store/appReducer';
+import { loadContentAsync } from '../store/fileReducer';
 
 export default function ListFiles() {
     const dispatch = useAppDispatch();
-    const { paths, selectedPath } = useAppSelector(appState => appState.app);
+    const paths = useAppSelector(appState =>
+        Object.entries(appState)
+            .filter(([key]) => key !== 'app')
+            .map(([key, value]) => ({ key, value })),
+    );
+    const { pathList, selectedPath } = useAppSelector(appState => appState.app);
+
+    function getInfo(path: string): any {
+        return paths.find(p => p.key === path)?.value;
+    }
+
+    useEffect(() => {
+        dispatch(loadContentAsync(selectedPath)());
+    }, [dispatch, selectedPath]);
 
     return (
         <div className="flex flex-col gap-4">
-            {paths.map((path: string, index: number) => (
+            {pathList.map((path: string, index: number) => (
                 <div
                     key={`fileList_${index}`}
                     className={`flex flex-row gap-2 p-2.5 hover:bg-zinc-400 ${
@@ -22,7 +37,7 @@ export default function ListFiles() {
                     <div
                         className="cursor-pointer"
                         onClick={() => dispatch(setSelectedPath(path))}>
-                        {path}
+                        {getInfo(path).isLoading ? "Loading..." : getInfo(path).path}
                     </div>
                 </div>
             ))}

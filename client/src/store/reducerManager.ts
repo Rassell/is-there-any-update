@@ -1,11 +1,11 @@
 import { combineReducers } from '@reduxjs/toolkit';
 import appReducer from './appReducer';
-import fileReducer from './fileReducer';
+import { todosReducerGenerator } from './fileReducer';
 
 export function reducerManager(initialState: any) {
     const reducers = Object.keys(initialState || {}).reduce(
         (acc: any, key) => {
-            if (key !== 'app') acc[key] = fileReducer;
+            if (key !== 'app') acc[key] = todosReducerGenerator(key);
             return acc;
         },
         { app: appReducer },
@@ -18,7 +18,8 @@ export function reducerManager(initialState: any) {
             return (combinedReducer as any)(state, action);
         },
         add: (key: string) => {
-            reducers[key] = fileReducer;
+            //TODO: Generate custom key or uuid instead of those
+            reducers[key] = todosReducerGenerator(key);
             combinedReducer = combineReducers(reducers);
         },
         remove: (key: string) => {

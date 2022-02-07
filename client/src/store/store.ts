@@ -23,8 +23,6 @@ export const reducerManager = rM(preloadedState);
 
 export function reducerManagerMiddleware({ getState }: MiddlewareAPI) {
     return (next: (action: Action) => void) => (action: Action) => {
-        const result = next(action);
-
         if (addPath.match(action)) {
             reducerManager.add(action.payload);
         }
@@ -33,7 +31,7 @@ export function reducerManagerMiddleware({ getState }: MiddlewareAPI) {
             reducerManager.remove(action.payload);
         }
 
-        return result;
+        return next(action);
     };
 }
 
@@ -43,8 +41,8 @@ export const store = configureStore({
     middleware: getDefaultMiddleware =>
         getDefaultMiddleware().concat([
             logger,
-            localStorageMiddleware,
             reducerManagerMiddleware,
+            localStorageMiddleware,
         ]),
 });
 

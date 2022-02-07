@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useState } from 'react';
+import { useAppSelector } from '../hooks/storeHooks';
 
 import { Dictionary, IPackage } from '../models';
 
@@ -24,44 +25,18 @@ function PackageCleaner(
 }
 
 export default function Content() {
-    const selectedPath = { path: '', type: '' };
-    const [content, setContent] = useState<IPackage>();
+    const { selectedPath } = useAppSelector(appState => appState.app);
+    const paths = useAppSelector(appState =>
+        Object.entries(appState).find(([key]) => key === selectedPath),
+    );
+    const [content, setContent] = useState<IPackage>(
+        paths && (paths[1] as any).content,
+    );
     const [loading, setLoading] = useState<boolean>(false);
     const [packagesWithNewVersions, setPackagesWithNewVersions] =
         useState<Dictionary>({});
     const [dependenciesToUpdate, setDependenciesToUpdate] =
         useState<Dictionary>({});
-
-    const loadContent = useCallback(async () => {
-        if (!selectedPath || !selectedPath.path) return;
-        setLoading(true);
-
-        const resultConentString = await window.Api.call(
-            'readFile',
-            selectedPath.path,
-        );
-
-        if (resultConentString) {
-            const resultContent: IPackage = JSON.parse(resultConentString);
-            setContent(resultContent);
-
-            try {
-                var response = await window.Api.call(
-                    'checkVersions',
-                    selectedPath,
-                );
-                setPackagesWithNewVersions(response);
-            } catch (error) {
-                console.log(error);
-            }
-        }
-
-        setLoading(false);
-    }, [selectedPath]);
-
-    useEffect(() => {
-        loadContent();
-    }, [loadContent]);
 
     if (!content) {
         return <></>;
@@ -108,8 +83,7 @@ export default function Content() {
             <div className="flex flex-row gap-5 border-b border-solid border-black pb-5 justify-end">
                 <button
                     disabled={loading}
-                    className="bg-green-500 rounded-sm font-semibold text-white px-10 disabled:bg-green-300"
-                    onClick={loadContent}>
+                    className="bg-green-500 rounded-sm font-semibold text-white px-10 disabled:bg-green-300">
                     Refresh
                 </button>
                 <button
@@ -119,7 +93,7 @@ export default function Content() {
                     Update selected packages
                 </button>
             </div>
-            {loading ? (
+            {paths && (paths[1] as any).isLoading ? (
                 <div className="m-auto w-24 h-24 border-4 border-solid border-red-500 border-t-transparent rounded-full animate-spin" />
             ) : (
                 <div className="flex flex-col gap-1 grow overflow-y-auto">

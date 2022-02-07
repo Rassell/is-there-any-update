@@ -2,12 +2,12 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 interface AppState {
     selectedPath: string;
-    paths: string[];
+    pathList: string[];
 }
 
 const initialState: AppState = {
     selectedPath: '',
-    paths: [],
+    pathList: [],
 };
 
 export const appSlice = createSlice({
@@ -15,11 +15,11 @@ export const appSlice = createSlice({
     initialState,
     reducers: {
         addPath: (state, action: PayloadAction<string>) => {
-            state.paths.push(action.payload);
+            state.pathList.push(action.payload);
             state.selectedPath = action.payload;
         },
         removePath: (state, action: PayloadAction<string>) => {
-            state.paths = state.paths.filter(path => path !== action.payload);
+            state.pathList = state.pathList.filter(path => path !== action.payload);
             state.selectedPath = '';
         },
         setSelectedPath: (state, action: PayloadAction<string>) => {
