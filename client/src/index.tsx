@@ -1,15 +1,17 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import { Provider } from 'react-redux';
+
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
-import { AppStateProvider } from './hooks/useAppState';
+import { store } from './store/store';
 
 ReactDOM.render(
     <React.StrictMode>
-        <AppStateProvider>
+        <Provider store={store}>
             <App />
-        </AppStateProvider>
+        </Provider>
     </React.StrictMode>,
     document.getElementById('root'),
 );

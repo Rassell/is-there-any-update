@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
 
-import { useAppState } from '../hooks/useAppState';
 import { Dictionary, IPackage } from '../models';
 
 function DependencyUpdater(deps: Dictionary, dependenciesToUpdate: Dictionary) {
@@ -25,7 +24,7 @@ function PackageCleaner(
 }
 
 export default function Content() {
-    const { selectedPath } = useAppState();
+    const selectedPath = { path: '', type: '' };
     const [content, setContent] = useState<IPackage>();
     const [loading, setLoading] = useState<boolean>(false);
     const [packagesWithNewVersions, setPackagesWithNewVersions] =

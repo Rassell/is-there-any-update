@@ -1,9 +1,10 @@
 import { useState } from 'react';
-import { useAppState } from '../hooks/useAppState';
+import { useAppDispatch } from '../hooks/storeHooks';
+import { addPath } from '../store/appReducer';
 
 //TODO: make enum for types
 export default function SelectFile() {
-    const { addFilePath } = useAppState();
+    const dispatch = useAppDispatch();
     const [path, setPath] = useState('');
     const [type, setType] = useState('');
 
@@ -30,7 +31,8 @@ export default function SelectFile() {
 
     async function save() {
         try {
-            addFilePath(path, type);
+            dispatch(addPath(path));
+
             setPath('');
         } catch (e) {
             console.log(e);

@@ -1,27 +1,28 @@
-import { useAppState } from '../hooks/useAppState';
 import TrashIcon from '../assets/icons/trash.png';
+import { useAppDispatch, useAppSelector } from '../hooks/storeHooks';
+import { removePath, setSelectedPath } from '../store/appReducer';
 
 export default function ListFiles() {
-    const { fileList, selectedPath, removeFilePath, showContent } =
-        useAppState();
+    const dispatch = useAppDispatch();
+    const { paths, selectedPath } = useAppSelector(appState => appState.app);
 
     return (
         <div className="flex flex-col gap-4">
-            {fileList.map((file, index) => (
+            {paths.map((path: string, index: number) => (
                 <div
                     key={`fileList_${index}`}
                     className={`flex flex-row gap-2 p-2.5 hover:bg-zinc-400 ${
-                        selectedPath.path === file.path && 'bg-gray-500'
+                        selectedPath === path && 'bg-gray-500'
                     }`}>
                     <button
                         className="bg-red-500 rounded-sm"
-                        onClick={() => removeFilePath(file)}>
+                        onClick={() => dispatch(removePath(path))}>
                         <img src={TrashIcon} alt="TrashIcon" width={20} />
                     </button>
                     <div
                         className="cursor-pointer"
-                        onClick={() => showContent(file)}>
-                        {file.path}
+                        onClick={() => dispatch(setSelectedPath(path))}>
+                        {path}
                     </div>
                 </div>
             ))}
