@@ -13,8 +13,9 @@
         "start": "concurrently \"npm run start:web\" \"wait-on http://localhost:3000 && npm run start:electron\"",
         "start:electron": "tsc && electron ./dist/main.js",
         "start:web": "cd ./client && npm run-script start",
-        "build:dir": "electron-builder --dir",
-        "build:dist": "electron-builder"
+        "build:web": "cd ./client && npm run-script build",
+        "build:dir": "npm run build:web && electron-builder --dir",
+        "build:dist": "npm run build:web && electron-builder"
     },
     "build": {
         "appId": "is.there.any.update",
