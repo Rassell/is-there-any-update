@@ -6,5 +6,5 @@
 - [] Testing
 - [] Change icon!
 - [] Add alias to folders?
-- [X] Redux (needed?)
-- [] Solve anys on Redux
+- [X] Redux
+- [] Solve "any" on Redux
