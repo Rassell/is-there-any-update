@@ -24,7 +24,7 @@ export const reducerManager = rM(preloadedState);
 export function reducerManagerMiddleware({ getState }: MiddlewareAPI) {
     return (next: (action: Action) => void) => (action: Action) => {
         if (addPath.match(action)) {
-            reducerManager.add(action.payload);
+            reducerManager.add(action.payload.path, action.payload.type);
         }
 
         if (removePath.match(action)) {

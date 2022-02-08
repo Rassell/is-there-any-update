@@ -12,8 +12,11 @@ export const appSlice = createSlice({
     name: 'app',
     initialState,
     reducers: {
-        addPath: (state, action: PayloadAction<string>) => {
-            state.selectedPath = action.payload;
+        addPath: (
+            state,
+            action: PayloadAction<{ path: string; type: string }>,
+        ) => {
+            state.selectedPath = action.payload.path;
         },
         removePath: (state, action: PayloadAction<string>) => {
             state.selectedPath = '';

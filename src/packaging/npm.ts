@@ -4,42 +4,74 @@ import * as fs from 'fs';
 //TODO: models file
 type Dictionary = { [key: string]: string };
 
-const REGEX_TO_DETECT_PACKAGES =
+const REGEX_TO_DETECT_PACKAGES_UPDATE =
     /([a-z|\@|\/|\-]+)\s+([0-9]+\.?[0-9]+\.?[0-9]+)\s+([0-9]+\.?[0-9]+\.?[0-9]+)\s+([0-9]+\.?[0-9]+\.?[0-9]+)/gi;
 const REGEX_TO_UPDATE_PACKAGES = /[\d\.]+/g;
 const isWin = process.platform === 'win32';
 
-export function getOutdated(pathToFind: string): Promise<Dictionary> {
-    const path = cleanPath(pathToFind);
-
-    let response = {};
+function getPackages(path: string) {
     return new Promise((resolve, reject) => {
         try {
-            var shell = spawn(`npm outdated`, {
+            const response = {} as any;
+
+            const shellList = spawn('npm list', {
                 detached: false,
                 cwd: path,
                 shell: true,
             });
 
-            shell.stdout.on('data', data => {
-                const matches: RegExpExecArray[] = data
-                    .toString()
-                    .split('\n')
-                    .map((l: string) => REGEX_TO_DETECT_PACKAGES.exec(l))
-                    .filter((m: RegExpExecArray) => m !== null);
-                matches.forEach(element => {
-                    response = {
-                        ...response,
-                        [element[1]]: element[4],
-                    };
+            shellList.stdout.on('data', data => {
+                const matches: string[] = data.toString().split(/├──|└──/g);
+                matches.shift();
+                matches.forEach(l => {
+                    const pack = l.trim();
+                    var lastIndexOf = pack.lastIndexOf('@');
+                    response[pack.substring(0, lastIndexOf)] =
+                        pack.substring(lastIndexOf + 1);
                 });
             });
 
-            shell.stderr.on('data', data => {
+            shellList.stderr.on('data', data => {
+                reject(data.toString());
+            });
+
+            shellList.on('close', () => {
+                resolve(response);
+            });
+        } catch (error) {
+            reject();
+        }
+    });
+}
+
+function getUpdates(path: string) {
+    return new Promise((resolve, reject) => {
+        try {
+            const response = {} as any;
+
+            const shellOutdated = spawn('npm outdated', {
+                detached: false,
+                cwd: path,
+                shell: true,
+            });
+
+            shellOutdated.stdout.on('data', data => {
+                const matches: RegExpExecArray[] = data
+                    .toString()
+                    .split('\n')
+                    .map((l: string) => REGEX_TO_DETECT_PACKAGES_UPDATE.exec(l))
+                    .filter((m: RegExpExecArray) => m !== null);
+                matches.forEach(element => {
+                    const [, name, , , latestVersion, ..._] = element;
+                    response[name] = latestVersion;
+                });
+            });
+
+            shellOutdated.stderr.on('data', data => {
                 reject(data);
             });
 
-            shell.on('close', code => {
+            shellOutdated.on('close', code => {
                 if (code === 1) {
                     resolve(response);
                 } else {
@@ -52,14 +84,30 @@ export function getOutdated(pathToFind: string): Promise<Dictionary> {
     });
 }
 
+export async function getOutdated(pathToFind: string) {
+    const path = cleanPath(pathToFind);
+
+    let response = {
+        currentVersion: {} as Dictionary,
+        updatesAvailable: {} as Dictionary,
+    };
+
+    try {
+        response.currentVersion = (await getPackages(path)) as Dictionary;
+        response.updatesAvailable = (await getUpdates(path)) as Dictionary;
+    } catch (error) {
+        console.log(error);
+    }
+
+    return response;
+}
+
 export function updatePackages({
     path,
     dependenciesToUpdate,
-    doInstall,
 }: {
     path: string;
     dependenciesToUpdate: Dictionary;
-    doInstall: boolean;
 }) {
     if (!dependenciesToUpdate) return;
     return new Promise(resolve => {
@@ -73,7 +121,7 @@ export function updatePackages({
 
             fs.writeFileSync(path, JSON.stringify(content, null, 2));
 
-            var shell = spawn(`npm i`, {
+            var shell = spawn('npm i', {
                 detached: false,
                 cwd: cleanPath(path),
                 shell: true,

@@ -4,13 +4,13 @@ import {
     createSelector,
 } from '@reduxjs/toolkit';
 
-import { Dictionary, IPackage } from '../models';
+import { Dictionary } from '../models';
 import { RootState } from './store';
 
 interface FileState {
     path: string;
     type: string;
-    content: IPackage | null;
+    currentVersion: Dictionary;
     updatesAvailable: Dictionary;
     isLoading: boolean;
 }
@@ -18,33 +18,28 @@ interface FileState {
 const initialState: FileState = {
     path: '',
     type: '',
+    currentVersion: {},
     updatesAvailable: {},
-    content: null,
     isLoading: false,
 };
 
 export const loadContentAsync = (path: string) =>
-    createAsyncThunk(`${path}/loadContentAsync`, async () => {
-        const selectedPath = { path, type: 'npm' };
+    createAsyncThunk(`${path}/loadContentAsync`, async (_, thunkAPi) => {
+        let currentVersion = {} as Dictionary;
         let updatesAvailable = {} as Dictionary;
 
-        const resultConentString = await window.Api.call(
-            'readFile',
-            selectedPath.path,
-        );
-
-        if (resultConentString) {
-            try {
-                updatesAvailable = await window.Api.call(
-                    'checkVersions',
-                    selectedPath,
-                );
-            } catch (error) {
-                console.log(error);
-            }
+        try {
+            const response = await window.Api.call('checkVersions', {
+                path,
+                type: getTypeByPath(thunkAPi.getState(), path),
+            });
+            currentVersion = response.currentVersion;
+            updatesAvailable = response.updatesAvailable;
+        } catch (error) {
+            console.log(error);
         }
 
-        return { updatesAvailable, resultConentString };
+        return { currentVersion, updatesAvailable };
     });
 
 function DependencyUpdater(deps: Dictionary, dependenciesToUpdate: Dictionary) {
@@ -71,10 +66,10 @@ function PackageCleaner(
 export const updatePackagesAsync = (path: string) =>
     createAsyncThunk(
         `${path}/updatePackages`,
-        async (dependenciesToUpdate: Dictionary) => {
+        async (dependenciesToUpdate: Dictionary, thunkAPi) => {
             var success = await window.Api.call('updatePackages', {
                 path,
-                type: 'npm',
+                type: getTypeByPath(thunkAPi.getState(), path),
                 dependenciesToUpdate,
             });
 
@@ -86,17 +81,15 @@ export const updatePackagesAsync = (path: string) =>
         },
     );
 
-export const todosReducerGenerator = (path: string) =>
-    createReducer({ ...initialState, path }, builder => {
+export const todosReducerGenerator = (path: string, type: string) =>
+    createReducer({ ...initialState, path, type }, builder => {
         builder.addCase(loadContentAsync(path).pending, state => {
             state.isLoading = true;
         });
         builder.addCase(
             loadContentAsync(path).fulfilled,
             (state, { payload }) => {
-                state.content =
-                    payload.resultConentString &&
-                    JSON.parse(payload.resultConentString);
+                state.currentVersion = payload.currentVersion;
                 state.updatesAvailable = payload.updatesAvailable;
                 state.isLoading = false;
             },
@@ -110,22 +103,10 @@ export const todosReducerGenerator = (path: string) =>
         builder.addCase(
             updatePackagesAsync(path).fulfilled,
             (state, { payload }) => {
-                const content = state.content as IPackage;
-                state.content = {
-                    ...content,
-                    dependencies: DependencyUpdater(
-                        content.dependencies,
-                        payload.dependenciesToUpdate,
-                    ),
-                    devDependencies: DependencyUpdater(
-                        content.devDependencies,
-                        payload.dependenciesToUpdate,
-                    ),
-                    peerDependencies: DependencyUpdater(
-                        content.peerDependencies,
-                        payload.dependenciesToUpdate,
-                    ),
-                };
+                state.currentVersion = DependencyUpdater(
+                    state.currentVersion,
+                    payload.dependenciesToUpdate,
+                );
                 state.isLoading = false;
                 state.updatesAvailable = PackageCleaner(
                     state.updatesAvailable,
@@ -139,9 +120,21 @@ export const todosReducerGenerator = (path: string) =>
     });
 
 const selectSelf = (state: RootState) => state;
+const getTypeByPath = (state: RootState, path: string) => {
+    const found = Object.entries(state).find(([key]) => key === path);
+
+    return ((found ? found[1] : initialState) as FileState).type;
+};
 export const selectFiles = createSelector(selectSelf, items =>
     Object.entries(items).filter(([key]) => key !== 'app'),
 );
+export const selectSelectedFile = createSelector(selectSelf, state => {
+    const found = Object.entries(state).find(
+        ([key]) => key === state.app.selectedPath,
+    );
+
+    return (found ? found[1] : initialState) as FileState;
+});
 export const selectFilesKeys = createSelector(selectFiles, items =>
     items.map(([key]) => key),
 );

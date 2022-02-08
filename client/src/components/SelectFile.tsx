@@ -19,7 +19,7 @@ export default function SelectFile() {
                 if (path.endsWith('json')) {
                     setType('npm');
                 } else {
-                    setType('dotnet');
+                    setType('nuget');
                 }
             }
 
@@ -31,7 +31,7 @@ export default function SelectFile() {
 
     async function save() {
         try {
-            dispatch(addPath(path));
+            dispatch(addPath({ path, type }));
 
             setPath('');
         } catch (e) {
@@ -54,7 +54,7 @@ export default function SelectFile() {
                 <select value={type} onChange={e => setType(e.target.value)}>
                     <option value=""></option>
                     <option value="npm">npm</option>
-                    <option value="dotnet">dotnet</option>
+                    <option value="nuget">nuget</option>
                 </select>
             </label>
             <button

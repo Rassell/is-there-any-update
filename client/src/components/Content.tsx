@@ -2,21 +2,21 @@ import { useState } from 'react';
 
 import { useAppDispatch, useAppSelector } from '../hooks/storeHooks';
 import { Dictionary } from '../models';
-import { loadContentAsync, updatePackagesAsync } from '../store/fileReducer';
+import {
+    loadContentAsync,
+    selectSelectedFile,
+    updatePackagesAsync,
+} from '../store/fileReducer';
 
 export default function Content() {
     const dispatch = useAppDispatch();
     const { selectedPath } = useAppSelector(appState => appState.app);
-    const { content, updatesAvailable, isLoading } = useAppSelector(
-        appState =>
-            Object.entries(appState).find(
-                ([key]) => key === selectedPath,
-            )![1] as any,
-    );
+    const { currentVersion, updatesAvailable, isLoading } =
+        useAppSelector(selectSelectedFile);
     const [dependenciesToUpdate, setDependenciesToUpdate] =
         useState<Dictionary>({});
 
-    if (!content) {
+    if (Object.entries(currentVersion).length === 0) {
         return <></>;
     }
 
@@ -35,10 +35,6 @@ export default function Content() {
 
         setDependenciesToUpdate({});
     }
-
-    const totalDepedencies = Object.entries(content.dependencies || {})
-        .concat(Object.entries(content.devDependencies || {}))
-        .concat(Object.entries(content.peerDependencies || {}));
 
     return (
         <div className="flex flex-col gap-1 h-full">
@@ -60,7 +56,7 @@ export default function Content() {
                 <div className="m-auto w-24 h-24 border-4 border-solid border-red-500 border-t-transparent rounded-full animate-spin" />
             ) : (
                 <div className="flex flex-col gap-1 grow overflow-y-auto">
-                    {totalDepedencies.map(([key, value]: any) => (
+                    {Object.entries(currentVersion).map(([key, value]: any) => (
                         <div
                             key={key}
                             className="flex flex-row grow justify-between">

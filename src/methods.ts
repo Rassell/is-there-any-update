@@ -29,12 +29,6 @@ export function setMethods() {
         return path;
     });
 
-    ipcMain.handle('readFile', (_, path: string) => {
-        const content = fs.readFileSync(path).toString();
-
-        return content;
-    });
-
     // TODO: Define type of project
     // TODO: change to spawn for each new project added
     ipcMain.handle(
@@ -51,19 +45,16 @@ export function setMethods() {
             {
                 path,
                 dependenciesToUpdate,
-                doInstall,
                 type,
             }: {
                 path: string;
                 dependenciesToUpdate: { [key: string]: string };
-                doInstall: boolean;
                 type: string;
             },
         ) => {
             return packaging[type].updatePackages({
                 path,
                 dependenciesToUpdate,
-                doInstall,
             });
         },
     );

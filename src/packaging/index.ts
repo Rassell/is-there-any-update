@@ -7,15 +7,13 @@ export default {
     npm,
 } as {
     [key: string]: {
-        getOutdated(path: string): Promise<Dictionary>;
+        getOutdated(path: string): ReturnType<typeof npm.getOutdated>;
         updatePackages({
             path,
             dependenciesToUpdate,
-            doInstall,
         }: {
             path: string;
             dependenciesToUpdate: Dictionary;
-            doInstall: boolean;
         }): Promise<unknown>;
     };
 };
