@@ -1,22 +1,14 @@
-import { useEffect } from 'react';
+import { useSelector } from 'react-redux';
 
 import TrashIcon from '../assets/icons/trash.png';
 import { useAppDispatch, useAppSelector } from '../hooks/storeHooks';
 import { removePath, setSelectedPath } from '../store/appReducer';
-import { loadContentAsync } from '../store/fileReducer';
+import { selectFilesAsKV } from '../store/fileReducer';
 
 export default function ListFiles() {
     const dispatch = useAppDispatch();
-    const paths = useAppSelector(appState =>
-        Object.entries(appState)
-            .filter(([key]) => key !== 'app')
-            .map(([key, value]) => ({ key, value })),
-    );
+    const paths = useSelector(selectFilesAsKV);
     const { selectedPath } = useAppSelector(appState => appState.app);
-
-    useEffect(() => {
-        if (selectedPath) dispatch(loadContentAsync(selectedPath)());
-    }, [dispatch, selectedPath]);
 
     return (
         <div className="flex flex-col gap-4">

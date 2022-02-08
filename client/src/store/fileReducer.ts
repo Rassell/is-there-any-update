@@ -1,5 +1,11 @@
-import { createAsyncThunk, createReducer } from '@reduxjs/toolkit';
+import {
+    createAsyncThunk,
+    createReducer,
+    createSelector,
+} from '@reduxjs/toolkit';
+
 import { Dictionary, IPackage } from '../models';
+import { RootState } from './store';
 
 interface FileState {
     path: string;
@@ -131,3 +137,14 @@ export const todosReducerGenerator = (path: string) =>
             state.isLoading = false;
         });
     });
+
+const selectSelf = (state: RootState) => state;
+export const selectFiles = createSelector(selectSelf, items =>
+    Object.entries(items).filter(([key]) => key !== 'app'),
+);
+export const selectFilesKeys = createSelector(selectFiles, items =>
+    items.map(([key]) => key),
+);
+export const selectFilesAsKV = createSelector(selectFiles, items =>
+    items.map(([key, value]) => ({ key, value })),
+);
