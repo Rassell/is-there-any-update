@@ -14,7 +14,10 @@ export function setMethods() {
     ipcMain.handle('openFileDialog', async () => {
         const file = await dialog.showOpenDialog({
             properties: ['treatPackageAsDirectory'],
-            filters: [{ name: 'npm', extensions: ['json'] }],
+            filters: [
+                { name: 'npm', extensions: ['json'] },
+                { name: 'nuget', extensions: ['csproj'] },
+            ],
         });
 
         if (file.canceled) {
