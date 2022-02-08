@@ -4,8 +4,6 @@ import * as fs from 'fs';
 //TODO: models file
 type Dictionary = { [key: string]: string };
 
-const REGEX_TO_DETECT_PACKAGES_UPDATE =
-    /([a-z|\@|\/|\-]+)\s+([0-9]+\.?[0-9]+\.?[0-9]+)\s+([0-9]+\.?[0-9]+\.?[0-9]+)\s+([0-9]+\.?[0-9]+\.?[0-9]+)/gi;
 const REGEX_TO_UPDATE_PACKAGES = /[\d\.]+/g;
 const isWin = process.platform === 'win32';
 
@@ -26,8 +24,9 @@ function getPackages(path: string) {
                 matches.forEach(l => {
                     const pack = l.trim();
                     var lastIndexOf = pack.lastIndexOf('@');
-                    response[pack.substring(0, lastIndexOf)] =
-                        pack.substring(lastIndexOf + 1);
+                    response[pack.substring(0, lastIndexOf)] = pack.substring(
+                        lastIndexOf + 1,
+                    );
                 });
             });
 
@@ -56,14 +55,14 @@ function getUpdates(path: string) {
             });
 
             shellOutdated.stdout.on('data', data => {
-                const matches: RegExpExecArray[] = data
-                    .toString()
-                    .split('\n')
-                    .map((l: string) => REGEX_TO_DETECT_PACKAGES_UPDATE.exec(l))
-                    .filter((m: RegExpExecArray) => m !== null);
-                matches.forEach(element => {
-                    const [, name, , , latestVersion, ..._] = element;
-                    response[name] = latestVersion;
+                const matches: string[] = data.toString().split('\n');
+                matches.shift();
+                matches.forEach(l => {
+                    const [name, , , version] = l
+                        .trim()
+                        .split(' ')
+                        .filter(s => s);
+                    response[name] = version;
                 });
             });
 
