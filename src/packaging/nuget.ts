@@ -4,85 +4,8 @@ import * as fs from 'fs';
 //TODO: models file
 type Dictionary = { [key: string]: string };
 
-const REGEX_TO_DETECT_PACKAGES_UPDATE =
-    /([a-z|\@|\/|\-]+)\s+([0-9]+\.?[0-9]+\.?[0-9]+)\s+([0-9]+\.?[0-9]+\.?[0-9]+)\s+([0-9]+\.?[0-9]+\.?[0-9]+)/gi;
 const REGEX_TO_UPDATE_PACKAGES = /[\d\.]+/g;
 const isWin = process.platform === 'win32';
-
-function getPackages(path: string) {
-    return new Promise((resolve, reject) => {
-        try {
-            const response = {} as any;
-
-            const shellList = spawn('npm list', {
-                detached: false,
-                cwd: path,
-                shell: true,
-            });
-
-            shellList.stdout.on('data', data => {
-                const matches: string[] = data.toString().split(/├──|└──/g);
-                matches.shift();
-                matches.forEach(l => {
-                    const pack = l.trim();
-                    var lastIndexOf = pack.lastIndexOf('@');
-                    response[pack.substring(0, lastIndexOf)] =
-                        pack.substring(lastIndexOf + 1);
-                });
-            });
-
-            shellList.stderr.on('data', data => {
-                reject(data.toString());
-            });
-
-            shellList.on('close', () => {
-                resolve(response);
-            });
-        } catch (error) {
-            reject();
-        }
-    });
-}
-
-function getUpdates(path: string) {
-    return new Promise((resolve, reject) => {
-        try {
-            const response = {} as any;
-
-            const shellOutdated = spawn('npm outdated', {
-                detached: false,
-                cwd: path,
-                shell: true,
-            });
-
-            shellOutdated.stdout.on('data', data => {
-                const matches: RegExpExecArray[] = data
-                    .toString()
-                    .split('\n')
-                    .map((l: string) => REGEX_TO_DETECT_PACKAGES_UPDATE.exec(l))
-                    .filter((m: RegExpExecArray) => m !== null);
-                matches.forEach(element => {
-                    const [, name, , , latestVersion, ..._] = element;
-                    response[name] = latestVersion;
-                });
-            });
-
-            shellOutdated.stderr.on('data', data => {
-                reject(data);
-            });
-
-            shellOutdated.on('close', code => {
-                if (code === 1) {
-                    resolve(response);
-                } else {
-                    reject(code);
-                }
-            });
-        } catch (error) {
-            reject();
-        }
-    });
-}
 
 export async function getOutdated(pathToFind: string) {
     const path = cleanPath(pathToFind);
@@ -92,14 +15,42 @@ export async function getOutdated(pathToFind: string) {
         updatesAvailable: {} as Dictionary,
     };
 
-    try {
-        response.currentVersion = (await getPackages(path)) as Dictionary;
-        response.updatesAvailable = (await getUpdates(path)) as Dictionary;
-    } catch (error) {
-        console.log(error);
-    }
+    return new Promise((resolve, reject) => {
+        try {
+            const shellOutdated = spawn('dotnet list package --outdated', {
+                detached: false,
+                cwd: path,
+                shell: true,
+            });
 
-    return response;
+            shellOutdated.stdout.on('data', data => {
+                const matches = data
+                    .toString()
+                    .split('\n')
+                    .map((l: string) => l.trim())
+                    .filter((l: string) => l.startsWith('>'))
+                    .map((l: string) => l.replace('> ', ''));
+
+                matches.forEach((element: string) => {
+                    const [name, version, , updateVersion] = element
+                        .split(' ')
+                        .filter(l => l);
+                    response.currentVersion[name] = version;
+                    response.updatesAvailable[name] = updateVersion;
+                });
+            });
+
+            shellOutdated.stderr.on('data', data => {
+                reject(data.toString());
+            });
+
+            shellOutdated.on('close', code => {
+                resolve(response);
+            });
+        } catch (error) {
+            reject();
+        }
+    });
 }
 
 export function updatePackages({
