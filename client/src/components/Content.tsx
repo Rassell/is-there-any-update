@@ -2,7 +2,7 @@ import { useState } from 'react';
 
 import { useAppDispatch, useAppSelector } from '../hooks/storeHooks';
 import { Dictionary } from '../models';
-import { updatePackagesAsync } from '../store/fileReducer';
+import { loadContentAsync, updatePackagesAsync } from '../store/fileReducer';
 
 export default function Content() {
     const dispatch = useAppDispatch();
@@ -29,6 +29,13 @@ export default function Content() {
         }
     }
 
+    async function refreshDependencies() {
+        const action = loadContentAsync(selectedPath);
+        await dispatch(action());
+
+        setDependenciesToUpdate({});
+    }
+
     const totalDepedencies = Object.entries(content.dependencies || {})
         .concat(Object.entries(content.devDependencies || {}))
         .concat(Object.entries(content.peerDependencies || {}));
@@ -38,7 +45,8 @@ export default function Content() {
             <div className="flex flex-row gap-5 border-b border-solid border-black pb-5 justify-end">
                 <button
                     disabled={isLoading}
-                    className="bg-green-500 rounded-sm font-semibold text-white px-10 disabled:bg-green-300">
+                    className="bg-green-500 rounded-sm font-semibold text-white px-10 disabled:bg-green-300"
+                    onClick={refreshDependencies}>
                     Refresh
                 </button>
                 <button
