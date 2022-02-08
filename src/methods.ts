@@ -9,13 +9,12 @@ export function setMainWindow(win: Electron.BrowserWindow) {
     mainWindow = win;
 }
 
-//TODO: change responses to (err, data)
 export function setMethods() {
     // TODO: Check if file is valid (package.json etc)
     ipcMain.handle('openFileDialog', async () => {
         const file = await dialog.showOpenDialog({
             properties: ['treatPackageAsDirectory'],
-            filters: [{ name: 'npm', extensions: ['.json'] }],
+            filters: [{ name: 'npm', extensions: ['json'] }],
         });
 
         if (file.canceled) {
