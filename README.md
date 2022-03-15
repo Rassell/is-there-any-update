@@ -1,10 +1,7 @@
 # is-there-any-update
 
-## TODOS:
+An easy way to check for updates. Made with electron!
 
-- [] Routing
-- [] Testing
-- [] Change icon!
-- [] Add alias to folders?
-- [X] Redux
-- [] Solve "any" on Redux
+Add your favorite project package manager to the list to check for any updates!
+
+WIP for documentation!
